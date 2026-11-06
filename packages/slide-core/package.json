@@ -1,6 +1,6 @@
 {
   "name": "@yadeck/slide-core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "YADECK: loader (sugar expansion), validate, DI container, renderer, RichText, JSON Schema emit, CLI",
   "homepage": "https://onfi.github.io/yadeck/",
   "repository": {
@@ -41,7 +41,7 @@
   "dependencies": {
     "@tailwindcss/node": "^4.3.4",
     "@tailwindcss/oxide": "^4.3.4",
-    "@yadeck/slide-schema": "^0.1.0",
+    "@yadeck/slide-schema": "^0.1.1",
     "esbuild": "^0.28.0",
     "marked": "^18.0.0",
     "sanitize-html": "^2.17.0",

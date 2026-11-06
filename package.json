@@ -20,7 +20,8 @@
     "docs:build": "npm run docs:demo && vitepress build docs",
     "docs:preview": "vitepress preview docs",
     "release:check": "npm run clean && npm run build && npm test && npm pack --dry-run -w packages/slide-schema -w packages/slide-core -w packages/slide-components-basic -w packages/create-slide",
-    "release:publish": "npm run clean && npm run build && npm test && npm publish -w packages/slide-schema -w packages/slide-core -w packages/slide-components-basic -w packages/create-slide"
+    "release:publish": "npm run clean && npm run build && npm test && npm publish -w packages/slide-schema -w packages/slide-core -w packages/slide-components-basic -w packages/create-slide",
+    "release:version": "node scripts/version.mjs"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

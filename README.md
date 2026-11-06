@@ -118,4 +118,9 @@ npm run release:check      # クリーンビルド、テスト、各パッケー
 npm run release:publish    # クリーンビルド、テストのあと npm に publish する
 ```
 
-版を上げるときは、4 つの package.json の `version` と、パッケージ間の依存(`@yadeck/*`)をそろえて変える。
+版を上げるときは、4 つのパッケージの `version`、パッケージ間の依存(`@yadeck/*`)、雛形の依存をスクリプトでまとめて変える。
+
+```sh
+npm run release:version -- 0.1.1
+npm install                # package-lock.json を合わせる
+```

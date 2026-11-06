@@ -11,8 +11,8 @@
     "png": "yadeck png"
   },
   "dependencies": {
-    "@yadeck/slide-components-basic": "^0.1.0",
-    "@yadeck/slide-core": "^0.1.0",
+    "@yadeck/slide-components-basic": "^0.1.1",
+    "@yadeck/slide-core": "^0.1.1",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "zod": "^4.6.0"
