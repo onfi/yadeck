@@ -18,7 +18,9 @@
     "docs:demo": "npm run example:build && rm -rf docs/public/demo && mkdir -p docs/public/demo && cp -r examples/my-deck/dist/. docs/public/demo/ && rm -rf docs/public/demo/png",
     "docs:dev": "vitepress dev docs",
     "docs:build": "npm run docs:demo && vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "release:check": "npm run clean && npm run build && npm test && npm pack --dry-run -w packages/slide-schema -w packages/slide-core -w packages/slide-components-basic -w packages/create-slide",
+    "release:publish": "npm run clean && npm run build && npm test && npm publish -w packages/slide-schema -w packages/slide-core -w packages/slide-components-basic -w packages/create-slide"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

@@ -23,5 +23,21 @@
   "scripts": {
     "build": "tsc -b"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "license": "MIT",
+  "author": "onfi",
+  "keywords": [
+    "yadeck",
+    "slides",
+    "presentation",
+    "yaml",
+    "react",
+    "ai"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }

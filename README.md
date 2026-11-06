@@ -12,7 +12,7 @@ data の各ノードは `tags` を持ち、tags が唯一の分岐キー。view 
 |---|---|
 | `@yadeck/slide-schema` | 基底スキーマ(version / meta / deck-slide-block) + Interface(`DeckLayout` / `SlideLayout` / `BlockLayout`) |
 | `@yadeck/slide-core` | loader(sugar 展開) / validate / DI コンテナ / renderer / RichText / JSON Schema emit / CLI(`yadeck build|dev|validate|schema|check|png`) |
-| `@yadeck/slide-components-basic` | 最小 tag セット(header / section-header / two-column / heading / body / list / code / image / quote / note) |
+| `@yadeck/slide-components-basic` | 標準の Layout 一式(basic プラグイン)。表紙、自己紹介、章扉、自動レイアウト、2 列、カード、横並び、コード、画像、動画、流れの図、ノートなど |
 | `@yadeck/create-slide` | `npx @yadeck/create-slide my-deck` で利用者リポジトリを生成 |
 
 利用者リポジトリの実例は `examples/my-deck`。
@@ -107,3 +107,15 @@ fonts: ["Noto Sans JP:400,700", "JetBrains Mono:400"],
 `dist/*.html` の静的 HTML。16:9(1280x720)固定で、ブラウザの印刷から PDF にできる(`@page` + `break-after: page`)。
 補完用の JSON Schema は build/dev 時(または `yadeck schema`)に `.slide/deck.schema.json` へ出力される。bind の `description` と zod の `.describe()` が入るので、使える tags とフィールドの一覧として読める。
 `public/`(config の `publicDir`)の中身は `dist/` 直下にそのままコピーされ、deck からは `./logo.svg` のように参照する。
+
+## リリース
+
+4 つのパッケージは同じ版で出す。依存の順(schema → core → components-basic → create-slide)に publish される。
+
+```sh
+npm login                  # 初回だけ。@yadeck スコープに publish できるアカウントで
+npm run release:check      # クリーンビルド、テスト、各パッケージの中身の確認(上げない)
+npm run release:publish    # クリーンビルド、テストのあと npm に publish する
+```
+
+版を上げるときは、4 つの package.json の `version` と、パッケージ間の依存(`@yadeck/*`)をそろえて変える。

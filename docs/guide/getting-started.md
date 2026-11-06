@@ -4,7 +4,7 @@ deck 用のリポジトリを作り、最初のページをプレビューして
 
 ## 必要なもの
 
-- Node.js(24 で動作確認しています)
+- Node.js 22 以上(24 で動作確認しています)
 - npm
 - PNG 書き出しと検査を使う場合は Chromium(後述の `npx playwright install chromium` で入ります)
 
@@ -16,8 +16,8 @@ cd my-deck
 npm install
 ```
 
-::: warning npm への公開前
-パッケージはまだ npm に公開していません。それまでは YADECK のリポジトリを手元に置き、`file:` で参照します。
+::: tip 開発中の版を使う
+npm に出ている版ではなく、リポジトリの最新を試したいときは、YADECK のリポジトリを手元に置いて `file:` で参照します。
 
 ```sh
 git clone https://github.com/onfi/yadeck.git

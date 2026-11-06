@@ -21,7 +21,11 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "src",
+    "!src/**/*.test.ts",
+    "!src/**/*.test.tsx",
+    "!src/**/__snapshots__"
   ],
   "scripts": {
     "build": "tsc -b"
@@ -33,5 +37,21 @@
   "devDependencies": {
     "react": "^19.3.0",
     "zod": "^4.6.0"
+  },
+  "license": "MIT",
+  "author": "onfi",
+  "keywords": [
+    "yadeck",
+    "slides",
+    "presentation",
+    "yaml",
+    "react",
+    "ai"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

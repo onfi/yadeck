@@ -396,12 +396,25 @@ async function dev(options: CliOptions): Promise<void> {
   for (const root of roots) fs.watch(root, { recursive: true }, onChange(root));
   // Linux の再帰 fs.watch は上書き保存の change を取りこぼすことがあるので、mtime のポーリングも併用する
   const mtimes = new Map<string, number>();
+  // 監視先(プラグインの dist など)はクリーンビルドの間だけ消えることがあるので、見つからないものは飛ばす
   const scan = (dir: string, cb: (file: string, mtime: number) => void) => {
-    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    let entries: fs.Dirent[];
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const e of entries) {
       const full = path.join(dir, e.name);
       if (ignored.some((d) => full === d || full.startsWith(d + path.sep))) continue;
       if (e.isDirectory()) scan(full, cb);
-      else if (e.isFile()) cb(full, fs.statSync(full).mtimeMs);
+      else if (e.isFile()) {
+        try {
+          cb(full, fs.statSync(full).mtimeMs);
+        } catch {
+          // 読む直前に消えたファイル
+        }
+      }
     }
   };
   let primed = false;
