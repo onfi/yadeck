@@ -29,7 +29,7 @@ body { background: #d9d9d9; }
   .yd-slide-frame { width: var(--yd-w); height: var(--yd-h); box-shadow: none; break-after: page; page-break-after: always; }
   .yd-slide-frame:last-child { break-after: auto; page-break-after: auto; }
   .yd-slide { transform: none; }
-  .yd-toolbar, .yd-hint, .yd-pointer { display: none !important; }
+  .yd-toolbar, .yd-hint, .yd-pointer, .yd-credit { display: none !important; }
 }
 
 /* ---- presentation modes (client/present.ts が body にクラスを付ける) ---- */
@@ -40,6 +40,10 @@ body { background: #d9d9d9; }
 .yd-pointer { position: absolute; width: 20px; height: 20px; border-radius: 50%; background: rgba(255,40,40,.85); box-shadow: 0 0 8px rgba(255,0,0,.6); transform: translate(-50%,-50%); pointer-events: none; display: none; z-index: 5; }
 .yd-hint { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); padding: 8px 16px; border-radius: 8px; background: rgba(0,0,0,.7); color: #fff; font: 14px system-ui, sans-serif; z-index: 10; }
 
+/* 通常表示の末尾のクレジット。発表・発表者モードと印刷では出さない */
+.yd-credit { text-align: center; padding: 8px 16px 32px; font: 13px system-ui, sans-serif; color: #666; }
+.yd-credit a { color: inherit; text-decoration: underline; }
+body.yd-present .yd-credit, body.yd-presenter .yd-credit { display: none; }
 body.yd-present { background: #000; overflow: hidden; }
 body.yd-present .yd-deck { height: 100vh; padding: 0; gap: 0; justify-content: center; cursor: none; }
 body.yd-present .yd-slide-frame { display: none; box-shadow: none; }
@@ -106,6 +110,15 @@ export interface DocumentOptions {
    * src は config をブラウザ向けにバンドルしたスクリプト(HTML からの相対パス)
    */
   client?: { data: unknown; src: string };
+  /** 末尾に「Created with YADECK」を出すか。既定 true */
+  credit?: boolean;
+}
+
+export const CREDIT_URL = "https://github.com/onfi/yadeck";
+
+/** 通常表示と deck の一覧の末尾に置くクレジット */
+export function creditHtml(): string {
+  return `<footer class="yd-credit">Created with <a href="${CREDIT_URL}" target="_blank" rel="noopener">YADECK</a></footer>`;
 }
 
 /** <script> の中に JSON を安全に埋め込む(</script> などで閉じられないようにする) */
@@ -145,6 +158,7 @@ ${extraHead}
 </head>
 <body>
 ${body}
+${options.credit === false ? "" : creditHtml()}
 ${scripts}
 ${clientTag}
 ${islandTags}

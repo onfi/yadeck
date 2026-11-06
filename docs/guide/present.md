@@ -24,6 +24,8 @@ present のキー操作は次のとおりです。
 
 `#s3` のように URL の末尾にページ番号(0 始まり)を付けると、そのページから開きます。
 
+通常表示の末尾には「Created with YADECK」のリンクが出ます。発表モードと印刷には出ません。消したいときは `slide.config.ts` で `credit: false` にします。
+
 ### デュアルモニター
 
 - presenter の「投影ウィンドウを開く」は、接続された画面を一覧し、選んだ画面に present を全画面で開きます(Chrome の Window Management API。権限の確認が出ます)

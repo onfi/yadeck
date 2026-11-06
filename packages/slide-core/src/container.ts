@@ -141,6 +141,8 @@ export interface SlideConfig {
   embedFonts?: boolean;
   /** dev で追加監視するパス。file: 指定でリンクしたプラグインの dist など、リポジトリ外の変更を拾う */
   watch?: string[];
+  /** 通常表示と deck の一覧の末尾に「Created with YADECK」とリポジトリへのリンクを出すか。既定 true */
+  credit?: boolean;
 }
 
 export function defineConfig(config: SlideConfig): SlideConfig {

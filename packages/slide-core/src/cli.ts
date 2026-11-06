@@ -4,7 +4,7 @@ import * as http from "node:http";
 import * as path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { createContainer, type Container, type SlideConfig } from "./container.js";
-import { escapeHtml, renderDocument } from "./document.js";
+import { creditHtml, escapeHtml, renderDocument } from "./document.js";
 import { embedFonts, fontLinkTags } from "./fonts.js";
 import { emitJsonSchema } from "./jsonschema.js";
 import { loadDeckFromJson, loadDeckFromYaml } from "./loader.js";
@@ -190,14 +190,14 @@ async function buildAll(project: Project, extraScripts: string[] = [], embed = t
       const client = needsClient
         ? { data: { deck, richText: richTextCache, richTextOptions: config.richText }, src: `./${CLIENT_BUNDLE}` }
         : undefined;
-      const html = renderDocument(deck, { container, richText: config.richText, body, css, extraScripts, extraHead, client });
+      const html = renderDocument(deck, { container, richText: config.richText, body, css, extraScripts, extraHead, client, credit: config.credit });
       writeFile(path.join(project.outDir, `${name}.html`), html);
       result.pages.push({ name, title: deck.meta.title ?? name });
     } catch (error) {
       result.errors.push({ file: path.relative(project.decksDir, file), error: error as Error });
     }
   }
-  writeFile(path.join(project.outDir, "index.html"), indexPage(result, extraScripts));
+  writeFile(path.join(project.outDir, "index.html"), indexPage(result, extraScripts, config.credit !== false));
   if (clientNeeded) {
     try {
       await buildClientBundle(project);
@@ -261,7 +261,7 @@ async function buildClientBundle(project: Project): Promise<void> {
   });
 }
 
-function indexPage(result: BuildResult, extraScripts: string[]): string {
+function indexPage(result: BuildResult, extraScripts: string[], credit: boolean): string {
   const items = result.pages
     .map((p) => `<li><a href="./${encodeURIComponent(p.name)}.html">${escapeHtml(p.title)}</a> <small>${escapeHtml(p.name)}</small></li>`)
     .join("\n");
@@ -269,8 +269,9 @@ function indexPage(result: BuildResult, extraScripts: string[]): string {
     .map((e) => `<li><b>${escapeHtml(e.file)}</b><pre>${escapeHtml(e.error.message)}</pre></li>`)
     .join("\n");
   return `<!doctype html><html lang="ja"><head><meta charset="utf-8"><title>decks</title>
-<style>body{font-family:sans-serif;max-width:720px;margin:40px auto;padding:0 16px}pre{background:#fee;padding:8px;white-space:pre-wrap}</style>
+<style>body{font-family:sans-serif;max-width:720px;margin:40px auto;padding:0 16px}pre{background:#fee;padding:8px;white-space:pre-wrap}.yd-credit{margin-top:48px;font-size:13px;color:#666}.yd-credit a{color:inherit}</style>
 </head><body><h1>decks</h1><ul>${items}</ul>${errors ? `<h2>errors</h2><ul>${errors}</ul>` : ""}
+${credit ? creditHtml() : ""}
 ${extraScripts.map((s) => `<script>${s}</script>`).join("\n")}</body></html>`;
 }
 

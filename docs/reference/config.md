@@ -28,5 +28,6 @@ export default defineConfig({
 | `richText` | `{ markdown: true, html: true }` | テキストで markdown と HTML を使えるか。HTML は常に sanitize される |
 | `port` | `3000` | dev サーバのポート |
 | `watch` | `[]` | dev で追加で監視するパス。`file:` で参照しているプラグインの `dist` など |
+| `credit` | `true` | 通常表示と deck の一覧の末尾に「Created with YADECK」とリポジトリへのリンクを出すか。`false` で消す。発表モードと印刷には出ない |
 
 `slide.config.ts` は esbuild でまとめて読み込まれます。`src/` のプラグインや、`file:` で参照しているプラグインも一緒に取り込まれるので、TypeScript と JSX をそのまま書けます。
