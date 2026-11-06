@@ -99,7 +99,7 @@ fonts: ["Noto Sans JP:400,700", "JetBrains Mono:400"],
 | presenter | `deck.html?mode=presenter` | 発表者向け。現在/次のスライド、ノート(`note` block)、タイマー、投影先の選択 |
 
 - presenter の「投影ウィンドウを開く」は Window Management API でスクリーンを列挙し、選んだ画面に全画面 popup で present を開く(Chrome。権限ダイアログが出る)。非対応ブラウザでは通常の別ウィンドウで開くので `F` で全画面にする
-- ウィンドウ間は BroadcastChannel で同期する。ページ送り・暗転・ポインタ(presenter のプレビュー上のマウス位置が投影側に赤い点で出る)が揃う
+- ウィンドウ間は BroadcastChannel で同期する。ページ送り・暗転・レーザーポインタ(`L` で切り替え、押している間だけ赤い点を出す)が揃う
 - 同一オリジンが前提なので `file://` で直接開くのではなく、`yadeck dev` か任意の静的サーバで配信する
 
 ## 出力

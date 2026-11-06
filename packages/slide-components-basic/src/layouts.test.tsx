@@ -62,3 +62,18 @@ describe("basic layouts", () => {
     expect(html).toContain(`<div class="b-body">x</div>`);
   });
 });
+
+describe("発表者ノート", () => {
+  it("どの slide の Layout も note の block を描く(発表者モードがページの中から読む)", () => {
+    const cases = [
+      "- - heading: h\n  - body: b\n  - note: N",
+      "- columns:\n  - heading: h\n  - code: x\n  - note: N",
+      "- header: { title: t, $items: [{ note: N }] }",
+      "- profile: { name: n, $items: [{ heading: h }, { note: N }] }",
+      "- section-header: { $items: [{ heading: h }, { note: N }] }",
+      "- two-column: { $items: [{ heading: h }, { body left: a }, { note: N }] }",
+      "- card: { $items: [{ heading: h }, { item: { title: a } }, { note: N }] }",
+    ];
+    for (const yaml of cases) expect(render(yaml).match(/yd-notes/g) ?? [], yaml).toHaveLength(1);
+  });
+});

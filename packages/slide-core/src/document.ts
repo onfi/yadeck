@@ -38,7 +38,10 @@ body { background: #d9d9d9; }
 .yd-toolbar button, .yd-footer button, .yd-footer select {
   font: 14px system-ui, sans-serif; padding: 6px 12px; border-radius: 6px; border: 1px solid #888; background: #fff; color: #222; cursor: pointer;
 }
-.yd-pointer { position: absolute; width: 20px; height: 20px; border-radius: 50%; background: rgba(255,40,40,.85); box-shadow: 0 0 8px rgba(255,0,0,.6); transform: translate(-50%,-50%); pointer-events: none; display: none; z-index: 5; }
+/* レーザーポインタの点。中心を白く、外側を赤く光らせる */
+.yd-pointer { position: absolute; width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle, #fff 0 18%, #ff3030 40%, rgba(255,0,0,.85) 62%, rgba(255,0,0,0) 72%); box-shadow: 0 0 14px 6px rgba(255,30,30,.55), 0 0 36px 12px rgba(255,0,0,.25); transform: translate(-50%,-50%); pointer-events: none; display: none; z-index: 5; }
+body.yd-laser .yd-stage, body.yd-laser.yd-present .yd-deck { cursor: crosshair; touch-action: none; user-select: none; }
+.yd-footer button.yd-on { background: #d92b2b; border-color: #d92b2b; color: #fff; }
 .yd-hint { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); padding: 8px 16px; border-radius: 8px; background: rgba(0,0,0,.7); color: #fff; font: 14px system-ui, sans-serif; z-index: 10; }
 
 /* 通常表示の末尾のクレジット。発表・発表者モードと印刷では出さない */
@@ -52,14 +55,15 @@ body.yd-present .yd-slide-frame.yd-active { display: block; }
 body.yd-black .yd-slide-frame.yd-active .yd-slide { visibility: hidden; }
 
 body.yd-presenter { background: #1a1a1a; color: #eee; overflow: hidden; font: 14px system-ui, sans-serif; }
-.yd-console { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 1fr auto; gap: 16px; height: 100vh; padding: 16px; box-sizing: border-box; }
+/* 列と行は minmax(0, …) にして、縮小前のスライド(1280px)に列幅を引っぱられないようにする */
+.yd-console { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; gap: 16px; height: 100vh; padding: 16px; box-sizing: border-box; }
 .yd-stage { position: relative; min-width: 0; min-height: 0; display: flex; align-items: center; justify-content: center; background: #000; }
 .yd-stage .yd-deck { padding: 0; gap: 0; }
 .yd-stage .yd-slide-frame, .yd-next .yd-slide-frame { display: none; box-shadow: none; }
 .yd-stage .yd-slide-frame.yd-active, .yd-next .yd-slide-frame.yd-active { display: block; }
-.yd-side { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+.yd-side { display: flex; flex-direction: column; gap: 8px; min-height: 0; min-width: 0; }
 .yd-label { color: #999; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
-.yd-next { aspect-ratio: 16 / 9; width: 100%; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.yd-next { aspect-ratio: 16 / 9; width: 100%; min-width: 0; flex: none; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .yd-next .yd-slide { pointer-events: none; }
 .yd-notes-panel { flex: 1; min-height: 0; overflow: auto; padding: 12px; background: #262626; border-radius: 8px; font-size: 20px; line-height: 1.6; }
 .yd-notes-panel .yd-muted { color: #777; }

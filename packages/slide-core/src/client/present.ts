@@ -3,7 +3,8 @@
  * サーバを前提にせず、静的 HTML だけで次の3モードを切り替える。
  * - 通常(スクロール閲覧)。ツールバーから他モードへ
  * - present: 聴衆向け。1枚ずつ全画面表示
- * - presenter: 発表者向け。現在/次のスライド、ノート、タイマー、投影先の選択、ポインタ
+ * - presenter: 発表者向け。現在/次のスライド、ノート、タイマー、投影先の選択
+ * どちらのモードでも L でレーザーポインタに切り替わる。押している間だけ、押した位置に赤い点を出す。
  * 複数ウィンドウ間は同一オリジンの BroadcastChannel で同期する。
  */
 export {};
@@ -12,8 +13,9 @@ type Msg =
   | { type: "goto"; index: number }
   | { type: "pointer"; x: number | null; y?: number }
   | { type: "black"; on: boolean }
+  | { type: "laser"; on: boolean }
   | { type: "hello" }
-  | { type: "state"; index: number; black: boolean };
+  | { type: "state"; index: number; black: boolean; laser: boolean };
 
 interface ScreenDetailed {
   availLeft: number;
@@ -35,6 +37,7 @@ const channel = new BroadcastChannel(`yadeck:${location.pathname}`);
 
 let index = indexFromHash();
 let black = false;
+let laser = false;
 
 function indexFromHash(): number {
   const id = location.hash.slice(1);
@@ -66,6 +69,54 @@ function setBlack(on: boolean, broadcast = true): void {
   black = on;
   document.body.classList.toggle("yd-black", on);
   if (broadcast) send({ type: "black", on });
+}
+
+/** レーザーポインタの切り替え。オンの間はクリックでページを送らない */
+function setLaser(on: boolean, broadcast = true): void {
+  laser = on;
+  document.body.classList.toggle("yd-laser", on);
+  if (!on) showPointer(null);
+  if (broadcast) send({ type: "laser", on });
+  document.dispatchEvent(new CustomEvent("yd:laser", { detail: on }));
+}
+
+/**
+ * surface の上で押している間、表示中のスライド上の位置(0..1)にレーザーの点を出し、他のウィンドウにも送る。
+ * pointer events なので、マウスでもタッチやペンでも動く
+ */
+function bindLaser(surface: HTMLElement): void {
+  let down = false;
+  const move = (e: PointerEvent) => {
+    const r = frames[index]?.getBoundingClientRect();
+    if (!r) return;
+    const x = (e.clientX - r.left) / r.width;
+    const y = (e.clientY - r.top) / r.height;
+    if (x < 0 || x > 1 || y < 0 || y > 1) {
+      showPointer(null);
+      send({ type: "pointer", x: null });
+      return;
+    }
+    showPointer(x, y);
+    send({ type: "pointer", x, y });
+  };
+  surface.addEventListener("pointerdown", (e) => {
+    if (!laser) return;
+    e.preventDefault();
+    down = true;
+    surface.setPointerCapture(e.pointerId);
+    move(e);
+  });
+  surface.addEventListener("pointermove", (e) => {
+    if (laser && down) move(e);
+  });
+  const up = () => {
+    if (!down) return;
+    down = false;
+    showPointer(null);
+    send({ type: "pointer", x: null });
+  };
+  surface.addEventListener("pointerup", up);
+  surface.addEventListener("pointercancel", up);
 }
 
 function fitScale(el: HTMLElement, w: number, h: number): void {
@@ -125,6 +176,10 @@ function bindNavigationKeys(): void {
       case "F":
         toggleFullscreen();
         break;
+      case "l":
+      case "L":
+        setLaser(!laser);
+        break;
     }
   });
 }
@@ -140,10 +195,12 @@ function listenChannel(onState?: () => void): void {
     if (m.type === "goto") goto(m.index, false);
     else if (m.type === "pointer") showPointer(m.x, m.y);
     else if (m.type === "black") setBlack(m.on, false);
+    else if (m.type === "laser") setLaser(m.on, false);
     else if (m.type === "hello" && onState) onState();
     else if (m.type === "state") {
       goto(m.index, false);
       setBlack(m.black, false);
+      setLaser(m.laser, false);
     }
   };
 }
@@ -184,11 +241,14 @@ function setupPresent(): void {
   fit();
   goto(index, false);
   bindNavigationKeys();
-  deck?.addEventListener("click", (e) => goto(index + (e.shiftKey ? -1 : 1)));
+  deck?.addEventListener("click", (e) => {
+    if (!laser) goto(index + (e.shiftKey ? -1 : 1));
+  });
+  if (deck) bindLaser(deck);
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !document.fullscreenElement) location.href = urlWithMode(null);
   });
-  const hint = el("div", "yd-hint", "F: フルスクリーン / ← →: 送り / B: 暗転 / Esc: 戻る");
+  const hint = el("div", "yd-hint", "F: フルスクリーン / ← →: 送り / B: 暗転 / L: レーザー / Esc: 戻る");
   document.body.appendChild(hint);
   setTimeout(() => hint.remove(), 4000);
   listenChannel();
@@ -215,22 +275,25 @@ function setupPresenter(): void {
   const screenSelect = el("select", "yd-screens");
   const projectBtn = el("button", "", "投影ウィンドウを開く");
   const blackBtn = el("button", "", "暗転 (B)");
+  const laserBtn = el("button", "", "レーザー (L)");
   const prevBtn = el("button", "", "◀");
   const nextBtn = el("button", "", "▶");
 
   stage.appendChild(deck);
   side.append(el("div", "yd-label", "次のスライド"), next, el("div", "yd-label", "ノート"), notes);
-  footer.append(prevBtn, nextBtn, counter, blackBtn, el("span", "yd-spacer"), startBtn, resetBtn, timer, clock, screenSelect, projectBtn);
+  footer.append(prevBtn, nextBtn, counter, blackBtn, laserBtn, el("span", "yd-spacer"), startBtn, resetBtn, timer, clock, screenSelect, projectBtn);
   console_.append(stage, side, footer);
   document.body.appendChild(console_);
 
-  // 現在のスライドをステージに合わせて縮小し、次のスライドの複製を小さく出す
-  const ro = new ResizeObserver(() => {
+  // 現在のスライドをステージに合わせて縮小し、次のスライドの複製を小さく出す。
+  // 枠の大きさは CSS の grid(minmax(0, …))で決まり、中身の大きさには引っぱられない
+  const fitAll = () => {
     const r = stage.getBoundingClientRect();
     fitScale(stage, r.width, r.height);
     const n = next.getBoundingClientRect();
     fitScale(next, n.width, n.height);
-  });
+  };
+  const ro = new ResizeObserver(fitAll);
   ro.observe(stage);
   ro.observe(next);
 
@@ -245,6 +308,7 @@ function setupPresenter(): void {
       clone.querySelectorAll(".yd-pointer").forEach((d) => d.remove());
       next.appendChild(clone);
     }
+    fitAll();
     const noteHtml = Array.from(frames[index]?.querySelectorAll(".yd-notes") ?? [])
       .map((n) => n.innerHTML)
       .join("");
@@ -257,25 +321,11 @@ function setupPresenter(): void {
   prevBtn.onclick = () => goto(index - 1);
   nextBtn.onclick = () => goto(index + 1);
   blackBtn.onclick = () => setBlack(!black);
+  laserBtn.onclick = () => setLaser(!laser);
+  document.addEventListener("yd:laser", () => laserBtn.classList.toggle("yd-on", laser));
 
-  // ステージ上のマウス位置をスライド座標(0..1)に正規化して投影側に送る
-  stage.addEventListener("mousemove", (e) => {
-    const r = frames[index]?.getBoundingClientRect();
-    if (!r) return;
-    const x = (e.clientX - r.left) / r.width;
-    const y = (e.clientY - r.top) / r.height;
-    if (x < 0 || x > 1 || y < 0 || y > 1) {
-      showPointer(null);
-      send({ type: "pointer", x: null });
-      return;
-    }
-    showPointer(x, y);
-    send({ type: "pointer", x, y });
-  });
-  stage.addEventListener("mouseleave", () => {
-    showPointer(null);
-    send({ type: "pointer", x: null });
-  });
+  // レーザー: ステージ上で押している間、発表者側と投影側の同じ位置に赤い点を出す
+  bindLaser(stage);
 
   // タイマー
   let elapsed = 0;
@@ -339,7 +389,7 @@ function setupPresenter(): void {
     window.open(urlWithMode("present"), "yadeck-audience", features);
   };
 
-  listenChannel(() => send({ type: "state", index, black }));
+  listenChannel(() => send({ type: "state", index, black, laser }));
 }
 
 if (mode === "present") setupPresent();

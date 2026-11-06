@@ -1,6 +1,6 @@
 import { Block, RichText, pick, type BlockNode, type SlideNode } from "@yadeck/slide-core";
 import type { CSSProperties, ReactNode } from "react";
-import { PAGE, SlideHeading } from "./chrome.js";
+import { Notes, PAGE, SlideHeading } from "./chrome.js";
 import { codeChrome, codeSize } from "./layouts.js";
 
 /**
@@ -180,6 +180,7 @@ export const DefaultSlide = (slide: SlideNode) => {
           ))}
         </div>
       )}
+      <Notes items={slide.items} />
     </div>
   );
 };
@@ -208,6 +209,7 @@ export const ColumnsSlide = (slide: SlideNode) => {
           <PaneView key={i} pane={pane} box={box} />
         ))}
       </div>
+      <Notes items={slide.items} />
     </div>
   );
 };

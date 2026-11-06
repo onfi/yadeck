@@ -27,3 +27,17 @@ export const SlideHeading = ({ block, description }: { block: BlockNode; descrip
     {description && <RichText as="p" className="m-0 pl-6 text-small leading-snug text-muted" text={description} />}
   </header>
 );
+
+/**
+ * 発表者ノート(note の block)。画面と印刷には出ないが、発表者モードがページの中から読み取るので、
+ * どの Layout も items のノートを必ず描く
+ */
+export const Notes = ({ items }: { items: BlockNode[] }) => (
+  <>
+    {items
+      .filter((b) => b.tags.includes("note"))
+      .map((b) => (
+        <Block key={b.id} data={b} />
+      ))}
+  </>
+);

@@ -13,7 +13,7 @@ import {
   type SlideNode,
   type SlideOf,
 } from "@yadeck/slide-core";
-import { PAGE, SlideHeading } from "./chrome.js";
+import { Notes, PAGE, SlideHeading } from "./chrome.js";
 
 // ---- deck ----
 
@@ -196,6 +196,7 @@ export const SectionHeaderSlide = (slide: SlideOf<typeof sectionHeaderType>) => 
           ))}
         </div>
       </div>
+      <Notes items={slide.items} />
     </div>
   );
 };
