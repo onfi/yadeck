@@ -1,0 +1,9 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.slide/
+.yadeck/
+docs/.vitepress/cache/
+docs/.vitepress/dist/
+docs/public/demo/
+.playwright-mcp/

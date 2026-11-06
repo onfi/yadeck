@@ -1,0 +1,25 @@
+{
+  "name": "{{name}}",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "yadeck dev",
+    "build": "yadeck build",
+    "validate": "yadeck validate",
+    "schema": "yadeck schema",
+    "check": "yadeck check",
+    "png": "yadeck png"
+  },
+  "dependencies": {
+    "@yadeck/slide-components-basic": "^0.1.0",
+    "@yadeck/slide-core": "^0.1.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "zod": "^4.6.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "typescript": "^5.9.0",
+    "playwright": "^1.65.0"
+  }
+}

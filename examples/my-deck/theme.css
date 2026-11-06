@@ -1,0 +1,13 @@
+/*
+ * カラーテーマ。basic の既定トークンをここで上書きする。
+ * 使えるトークン: --color-primary / primary-deep / accent / ink / muted / faint / surface / code / code-ink,
+ *                 --font-sans / mono, --text-body / small / h1 / h2 / h3 / h4 / display
+ * Tailwind v4 の CSS なので @utility や @layer、素の CSS も書ける。
+ */
+@theme {
+  --color-primary: #0f766e;
+  --color-primary-deep: #134e4a;
+  --color-accent: #f59e0b;
+  --font-sans: "Noto Sans JP", "Hiragino Sans", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}

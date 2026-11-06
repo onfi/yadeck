@@ -1,0 +1,65 @@
+{
+  "name": "@yadeck/slide-core",
+  "version": "0.1.0",
+  "description": "YADECK: loader (sugar expansion), validate, DI container, renderer, RichText, JSON Schema emit, CLI",
+  "homepage": "https://onfi.github.io/yadeck/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/onfi/yadeck.git",
+    "directory": "packages/slide-core"
+  },
+  "bugs": {
+    "url": "https://github.com/onfi/yadeck/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./runtime": {
+      "types": "./dist/runtime.d.ts",
+      "import": "./dist/runtime.js"
+    }
+  },
+  "bin": {
+    "yadeck": "./bin/yadeck.js"
+  },
+  "files": [
+    "dist",
+    "bin"
+  ],
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@tailwindcss/node": "^4.3.4",
+    "@tailwindcss/oxide": "^4.3.4",
+    "@yadeck/slide-schema": "0.1.0",
+    "esbuild": "^0.28.0",
+    "marked": "^18.0.0",
+    "sanitize-html": "^2.17.0",
+    "tailwindcss": "^4.3.4",
+    "yaml": "^2.8.0"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zod": "^4.0.0",
+    "playwright": "^1.65.0"
+  },
+  "devDependencies": {
+    "@types/sanitize-html": "^2.16.0",
+    "playwright": "^1.65.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "zod": "^4.6.0"
+  },
+  "peerDependenciesMeta": {
+    "playwright": {
+      "optional": true
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "name": "@yadeck/slide-components-basic",
+  "version": "0.1.0",
+  "description": "YADECK: minimal tag set (header / section-header / heading / body / list / code / image / quote / note)",
+  "homepage": "https://onfi.github.io/yadeck/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/onfi/yadeck.git",
+    "directory": "packages/slide-components-basic"
+  },
+  "bugs": {
+    "url": "https://github.com/onfi/yadeck/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@yadeck/slide-core": "0.1.0",
+    "@yadeck/slide-schema": "0.1.0",
+    "highlight.js": "^11.12.0"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "react": "^19.3.0",
+    "zod": "^4.6.0"
+  }
+}

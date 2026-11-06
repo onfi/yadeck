@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../.slide/deck.schema.json
+- header:
+    title: YADECK サンプル
+    subtitle: YAML で書いて React で描く
+    author: you
+    date: "2026-11-04"
+- section-header t:
+    number: "01"
+    $items:
+      - heading: 概要
+      - body: data は **何を伝えるか** だけ。見た目は全て view が決める。
+- - heading: 3段構造
+  - body: |
+      deck / slide / block の3段。
+      children は `slides` と `items`、block が末端。
+  - list: |
+      tags が唯一の分岐キー
+      見た目・配置は view(React)
+      Interface + tags で実装を解決
+- two-column:
+    $items:
+      - heading: pick と pickAll
+      - body left: |
+          `pick(items, tags)` は最良の1個。
+          `pickAll(items, tags)` は一致する全部。
+      - code right:
+          lang: tsx
+          $text: |
+            const [heading, rest] = pick(slide.items, ["heading"]);
+            const [bodies] = pickAll(rest, ["body"]);
+- - heading: 印刷
+  - quote:
+      cite: 仕様 §8
+      $text: Layout は print で成立すること。
+  - body: ブラウザの印刷で 16:9 の PDF になります。
+  - note: ここは発表者ノート。画面にも印刷にも出ない。
+- 次のページ本文(文字列1つは tags 無しの slide + block になる)

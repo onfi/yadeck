@@ -1,0 +1,31 @@
+{
+  "name": "yadeck",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "build": "tsc -b packages/slide-schema packages/slide-core packages/slide-components-basic packages/create-slide",
+    "clean": "rm -rf packages/*/dist packages/*/tsconfig.tsbuildinfo",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -b --noEmit packages/slide-schema packages/slide-core packages/slide-components-basic packages/create-slide",
+    "example:build": "npm run build && npm --workspace examples/my-deck run build",
+    "example:dev": "npm run build && npm --workspace examples/my-deck run dev",
+    "build:watch": "tsc -b --watch packages/slide-schema packages/slide-core packages/slide-components-basic packages/create-slide",
+    "docs:demo": "npm run example:build && rm -rf docs/public/demo && mkdir -p docs/public/demo && cp -r examples/my-deck/dist/. docs/public/demo/ && rm -rf docs/public/demo/png",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "npm run docs:demo && vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "typescript": "^5.9.0",
+    "vitepress": "^1.6.4",
+    "vitest": "^5.1.0"
+  }
+}

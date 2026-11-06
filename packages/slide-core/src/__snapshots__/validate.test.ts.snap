@@ -1,0 +1,340 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`emitJsonSchema > 各段を anyOf で合成し、Layout の tags を contains で表す 1`] = `
+{
+  "$defs": {
+    "block": {
+      "anyOf": [
+        {
+          "type": "string",
+        },
+        {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string",
+              },
+              {
+                "type": "null",
+              },
+              {
+                "type": "object",
+              },
+            ],
+          },
+          "maxProperties": 1,
+          "minProperties": 1,
+          "properties": {
+            "image": {
+              "anyOf": [
+                {
+                  "type": "string",
+                },
+                {
+                  "type": "null",
+                },
+                {
+                  "additionalProperties": false,
+                  "description": "tags: image",
+                  "properties": {
+                    "$text": {
+                      "type": "string",
+                    },
+                    "src": {
+                      "type": "string",
+                    },
+                    "width": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "src",
+                  ],
+                  "type": "object",
+                },
+              ],
+              "description": "tags: image",
+            },
+          },
+          "propertyNames": {
+            "pattern": "^[^$]",
+          },
+          "type": "object",
+        },
+        {
+          "additionalProperties": false,
+          "description": "tags なし(既定)",
+          "properties": {
+            "$tags": {
+              "items": {
+                "type": "string",
+              },
+              "type": "array",
+            },
+            "$text": {
+              "type": "string",
+            },
+          },
+          "required": [],
+          "type": "object",
+        },
+        {
+          "additionalProperties": false,
+          "description": "tags: image",
+          "properties": {
+            "$tags": {
+              "allOf": [
+                {
+                  "contains": {
+                    "const": "image",
+                  },
+                },
+              ],
+              "items": {
+                "type": "string",
+              },
+              "type": "array",
+            },
+            "$text": {
+              "type": "string",
+            },
+            "src": {
+              "type": "string",
+            },
+            "width": {
+              "type": "number",
+            },
+          },
+          "required": [
+            "src",
+          ],
+          "type": "object",
+        },
+      ],
+    },
+    "deck": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/slide",
+          },
+          "type": "array",
+        },
+        {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string",
+              },
+              {
+                "type": "null",
+              },
+              {
+                "items": {
+                  "$ref": "#/$defs/slide",
+                },
+                "type": "array",
+              },
+              {
+                "type": "object",
+              },
+            ],
+          },
+          "maxProperties": 1,
+          "minProperties": 1,
+          "properties": {},
+          "propertyNames": {
+            "pattern": "^[^$]",
+          },
+          "type": "object",
+        },
+        {
+          "additionalProperties": false,
+          "description": "tags なし(既定)",
+          "properties": {
+            "$meta": {
+              "additionalProperties": {},
+              "properties": {
+                "author": {
+                  "type": "string",
+                },
+                "date": {
+                  "type": "string",
+                },
+                "title": {
+                  "type": "string",
+                },
+              },
+              "type": "object",
+            },
+            "$slides": {
+              "items": {
+                "$ref": "#/$defs/slide",
+              },
+              "type": "array",
+            },
+            "$tags": {
+              "items": {
+                "type": "string",
+              },
+              "type": "array",
+            },
+            "$version": {
+              "type": "string",
+            },
+          },
+          "required": [
+            "$meta",
+          ],
+          "type": "object",
+        },
+      ],
+    },
+    "slide": {
+      "anyOf": [
+        {
+          "type": "string",
+        },
+        {
+          "items": {
+            "$ref": "#/$defs/block",
+          },
+          "type": "array",
+        },
+        {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string",
+              },
+              {
+                "type": "null",
+              },
+              {
+                "items": {
+                  "$ref": "#/$defs/block",
+                },
+                "type": "array",
+              },
+              {
+                "type": "object",
+              },
+            ],
+          },
+          "maxProperties": 1,
+          "minProperties": 1,
+          "properties": {
+            "section-header": {
+              "anyOf": [
+                {
+                  "type": "string",
+                },
+                {
+                  "type": "null",
+                },
+                {
+                  "items": {
+                    "$ref": "#/$defs/block",
+                  },
+                  "type": "array",
+                },
+                {
+                  "additionalProperties": false,
+                  "description": "tags: section-header",
+                  "properties": {
+                    "$items": {
+                      "items": {
+                        "$ref": "#/$defs/block",
+                      },
+                      "type": "array",
+                    },
+                    "description": {
+                      "description": "見出しの下に添える 1 行の説明",
+                      "type": "string",
+                    },
+                    "number": {
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "number",
+                  ],
+                  "type": "object",
+                },
+              ],
+              "description": "tags: section-header",
+            },
+          },
+          "propertyNames": {
+            "pattern": "^[^$]",
+          },
+          "type": "object",
+        },
+        {
+          "additionalProperties": false,
+          "description": "tags なし(既定)",
+          "properties": {
+            "$items": {
+              "items": {
+                "$ref": "#/$defs/block",
+              },
+              "type": "array",
+            },
+            "$tags": {
+              "items": {
+                "type": "string",
+              },
+              "type": "array",
+            },
+            "description": {
+              "description": "見出しの下に添える 1 行の説明",
+              "type": "string",
+            },
+          },
+          "required": [],
+          "type": "object",
+        },
+        {
+          "additionalProperties": false,
+          "description": "tags: section-header",
+          "properties": {
+            "$items": {
+              "items": {
+                "$ref": "#/$defs/block",
+              },
+              "type": "array",
+            },
+            "$tags": {
+              "allOf": [
+                {
+                  "contains": {
+                    "const": "section-header",
+                  },
+                },
+              ],
+              "items": {
+                "type": "string",
+              },
+              "type": "array",
+            },
+            "description": {
+              "description": "見出しの下に添える 1 行の説明",
+              "type": "string",
+            },
+            "number": {
+              "type": "string",
+            },
+          },
+          "required": [
+            "number",
+          ],
+          "type": "object",
+        },
+      ],
+    },
+  },
+  "$ref": "#/$defs/deck",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "YADECK deck",
+}
+`;

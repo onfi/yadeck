@@ -1,0 +1,27 @@
+{
+  "name": "@yadeck/create-slide",
+  "version": "0.1.0",
+  "description": "YADECK: scaffold a deck repository (npx @yadeck/create-slide my-deck)",
+  "homepage": "https://onfi.github.io/yadeck/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/onfi/yadeck.git",
+    "directory": "packages/create-slide"
+  },
+  "bugs": {
+    "url": "https://github.com/onfi/yadeck/issues"
+  },
+  "type": "module",
+  "bin": {
+    "create-slide": "./bin/create-slide.js"
+  },
+  "files": [
+    "dist",
+    "bin",
+    "template"
+  ],
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "devDependencies": {}
+}

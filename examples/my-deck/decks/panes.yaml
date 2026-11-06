@@ -1,0 +1,146 @@
+# tags 無し slide の自動レイアウト確認用
+- - heading: 1 pane / 1 行
+  - 行が 1 つなら中央に大きく出す
+- - heading: 1 pane / 箇条書き
+  - 1 行目
+  - 2 行目は **強調** と `code` を含む
+  - list: |
+      list block の行も
+      同じ箇条書きに入る
+- - heading: 2 panes / テキスト + 画像
+  - 左にテキスト
+  - 右に画像
+  - image: { src: ./sample.svg, $text: 画像(アスペクト比維持) }
+- - heading: 3 panes / ト型
+  - 左にテキスト
+  - 右上にコード、右下に画像
+  - code:
+      lang: java
+      $text: |
+        public class Slide {
+          private String heading;
+
+          public void setHeading(String value) {
+            this.heading = value.trim();
+          }
+        }
+  - image: { src: ./sample.svg }
+- - heading: 4 panes / 十字
+  - テキスト
+  - code: { lang: ts, $text: "const [heading, rest] = pick(slide.items, [\"heading\"]);" }
+  - image: { src: ./sample.svg }
+  - video: { url: https://www.youtube.com/watch?v=dQw4w9WgXcQ, $text: YouTube の埋め込み }
+- - heading: 5 panes / 左 2 + 右 3
+  - テキスト
+  - code: { lang: java, $text: "System.out.println(\"a\");" }
+  - image: { src: ./sample.svg }
+  - code: { lang: java, $text: "System.out.println(\"b\");" }
+  - image: { src: ./sample.svg }
+- - heading: 8 panes / 4 + 4
+  - テキスト
+  - code: { lang: java, $text: "a();" }
+  - code: { lang: java, $text: "b();" }
+  - code: { lang: java, $text: "c();" }
+  - image: { src: ./sample.svg }
+  - image: { src: ./sample.svg }
+  - image: { src: ./sample.svg }
+  - code: { lang: java, $text: "d();" }
+- - code:
+      lang: java
+      $text: |
+        // 1 pane に長いコード。pane に収まるようにフォントサイズが下がる
+        package com.example.deck.search;
+
+        import java.util.Date;
+
+        public class DeckSearchCondition {
+          private Date from;
+          private Date to;
+          private String speaker;
+          private String event;
+          private String keyword;
+
+          public void setFrom(String from) { this.from = DateUtil.parse(from); }
+          public void setTo(String to) { this.to = DateUtil.parse(to); }
+          public boolean hasPeriod() { return from != null && to != null; }
+          public boolean isEmpty() { return from == null && to == null && speaker == null && event == null && keyword == null; }
+        }
+- columns:
+  - heading: columns / 横 3 分割
+  - 左のテキスト
+  - 行が 2 つなので箇条書き
+  - code: { lang: java, $text: "System.out.println(\"a\");" }
+  - image: { src: ./sample.svg }
+- columns:
+  - heading: columns / 4
+  - テキスト
+  - code: { lang: java, $text: "a();" }
+  - image: { src: ./sample.svg }
+  - code: { lang: java, $text: "b();" }
+- columns:
+  - heading: columns / 5 → 3 列 × 2 行
+  - テキスト
+  - code: { lang: java, $text: "a();" }
+  - image: { src: ./sample.svg }
+  - code: { lang: java, $text: "b();" }
+  - image: { src: ./sample.svg }
+- columns:
+  - heading: columns / 6 → 3 列 × 2 行
+  - テキスト
+  - code: { lang: java, $text: "a();" }
+  - image: { src: ./sample.svg }
+  - code: { lang: java, $text: "b();" }
+  - image: { src: ./sample.svg }
+  - code: { lang: java, $text: "c();" }
+- description: flow block の確認
+  $items:
+  - heading: flow / 左から右(吹き出し番号)
+  - flow:
+      direction: row
+      focus: [2, 3, 4]
+      steps:
+        - { label: 原稿 }
+        - { label: 構成, via: 組み立て, phase: ① 考えるとき, detail: 伝えたいことと前提を決める }
+        - { label: スライド, via: YAML, phase: ② 書くとき, detail: 内容だけを data に書く }
+        - { label: 発表, phase: ③ 見せるとき, detail: 発表者モードで話す }
+- description: flow block の確認(縦)
+  $items:
+  - heading: flow / 上から下
+  - flow:
+      direction: column
+      focus: [2, 3, 4]
+      steps:
+        - { label: 原稿 }
+        - { label: 構成, via: 組み立て, phase: ① 考えるとき, detail: 伝えたいことと前提を決める }
+        - { label: スライド, via: YAML, phase: ② 書くとき, detail: 内容だけを data に書く }
+        - { label: 発表, phase: ③ 見せるとき, detail: 発表者モードで話す }
+- description: flow boxed の確認
+  $items:
+  - heading: flow boxed / 枠付きボックス
+  - flow boxed:
+      focus: [2, 3, 4]
+      steps:
+        - { label: 原稿 }
+        - { label: 構成, via: 組み立て, phase: ① 考えるとき, detail: 伝えたいことと前提を決める }
+        - { label: スライド, via: YAML, phase: ② 書くとき, detail: 内容だけを data に書く }
+        - { label: 発表, phase: ③ 見せるとき, detail: 発表者モードで話す }
+- description: flow grid の確認
+  $items:
+  - heading: flow grid / 2 列のカード
+  - flow grid:
+      focus: [2, 3, 4]
+      steps:
+        - { label: 原稿, detail: 話したいことのメモ }
+        - { label: 構成, via: 組み立て, phase: ① 考えるとき, detail: 伝えたいことと前提を決める }
+        - { label: スライド, via: YAML, phase: ② 書くとき, detail: 内容だけを data に書く }
+        - { label: 発表, phase: ③ 見せるとき, detail: 発表者モードで話す }
+- description: flow framed の確認
+  $items:
+  - heading: flow framed / 全体を枠で囲む
+  - flow framed:
+      focus: [2, 3, 4]
+      steps:
+        - { label: 原稿 }
+        - { label: 構成, via: 組み立て, phase: ① 考えるとき, detail: 伝えたいことと前提を決める }
+        - { label: スライド, via: YAML, phase: ② 書くとき, detail: 内容だけを data に書く }
+        - { label: 発表, phase: ③ 見せるとき, detail: 発表者モードで話す }
