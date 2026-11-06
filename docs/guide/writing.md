@@ -1,3 +1,7 @@
+---
+description: YADECK の deck(YAML)の書き方。deck・slide・block の 3 段の構造、省略記法、description、発表者ノート、focus での焦点の指定、検証の方法。
+---
+
 # deck の書き方
 
 deck は `decks/` に置いた YAML(または JSON)です。ファイル名がそのまま出力の HTML 名になります。
@@ -51,6 +55,8 @@ block は本文の `text` を持てます。ほかのフィールドは、選ば
 ```yaml
 $meta:
   title: 発表タイトル        # 省略すると header の title、無ければファイル名
+  description: 検索結果や SNS のカードに出す説明   # 省略すると内容から作る
+  image: ./og.png            # SNS のカードの画像。URL か、siteUrl からの相対パス
 $slides:
   - $tags: [two-column]
     description: 比べると違いが分かる
@@ -59,6 +65,14 @@ $slides:
       - { $tags: [body, left], $text: 左の内容 }
       - { $tags: [body, right], $text: 右の内容 }
 ```
+
+### 検索と SNS 向けの情報
+
+build した HTML には、検索結果や SNS のカードに使われる meta タグ(description、OGP、Twitter カード)が入ります。
+
+- **説明文**: `meta.description` があればそれを使います。無ければ、表紙の副題と各ページの見出しをつないで作ります(120 文字まで)
+- **作者**: `meta.author`、無ければ表紙の `author` です
+- **URL と画像**: `slide.config.ts` の `siteUrl` に公開先を書くと、canonical と og:url が入り、`meta.image` の相対パスが絶対 URL になります
 
 ## slide 共通のフィールド
 

@@ -1,3 +1,7 @@
+---
+description: basic プラグインが用意する tags の一覧。表紙、章扉、自動レイアウト、2 列、カード、横並び、コード、画像、動画、流れの図と、それぞれのフィールド。
+---
+
 # basic の tags
 
 `@yadeck/slide-components-basic`(basic プラグイン)が用意している Layout の一覧です。

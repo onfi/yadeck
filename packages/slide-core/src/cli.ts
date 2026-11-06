@@ -190,7 +190,8 @@ async function buildAll(project: Project, extraScripts: string[] = [], embed = t
       const client = needsClient
         ? { data: { deck, richText: richTextCache, richTextOptions: config.richText }, src: `./${CLIENT_BUNDLE}` }
         : undefined;
-      const html = renderDocument(deck, { container, richText: config.richText, body, css, extraScripts, extraHead, client, credit: config.credit });
+      const url = config.siteUrl ? new URL(`${encodeURIComponent(name)}.html`, config.siteUrl.replace(/\/?$/, "/")).href : undefined;
+      const html = renderDocument(deck, { container, richText: config.richText, body, css, extraScripts, extraHead, client, credit: config.credit, url });
       writeFile(path.join(project.outDir, `${name}.html`), html);
       result.pages.push({ name, title: deck.meta.title ?? name });
     } catch (error) {
@@ -268,7 +269,7 @@ function indexPage(result: BuildResult, extraScripts: string[], credit: boolean)
   const errors = result.errors
     .map((e) => `<li><b>${escapeHtml(e.file)}</b><pre>${escapeHtml(e.error.message)}</pre></li>`)
     .join("\n");
-  return `<!doctype html><html lang="ja"><head><meta charset="utf-8"><title>decks</title>
+  return `<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>decks</title><meta name="generator" content="YADECK">
 <style>body{font-family:sans-serif;max-width:720px;margin:40px auto;padding:0 16px}pre{background:#fee;padding:8px;white-space:pre-wrap}.yd-credit{margin-top:48px;font-size:13px;color:#666}.yd-credit a{color:inherit}</style>
 </head><body><h1>decks</h1><ul>${items}</ul>${errors ? `<h2>errors</h2><ul>${errors}</ul>` : ""}
 ${credit ? creditHtml() : ""}

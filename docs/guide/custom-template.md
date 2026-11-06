@@ -1,3 +1,7 @@
+---
+description: deck のリポジトリの src/ に JSX の Layout を書き、tags を足したり basic を上書きしたりして、1 ページを作り込む方法。
+---
+
 # 独自テンプレート
 
 basic の Layout で足りないページは、deck リポジトリの `src/` に Layout を書いて足します。

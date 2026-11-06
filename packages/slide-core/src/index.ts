@@ -7,3 +7,4 @@ export { BASE_CSS, renderDocument, type DocumentOptions } from "./document.js";
 export { emitJsonSchema } from "./jsonschema.js";
 export { buildCss, type BuildCssOptions } from "./tailwind.js";
 export { embedFonts, fontLinkTags, googleFontsUrl, parseFontSpec, type FontSpec } from "./fonts.js";
+export { deckMetaTags, describeDeck, metaTagsHtml, plainText, type DeckMetaTags } from "./meta.js";

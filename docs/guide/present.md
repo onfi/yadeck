@@ -1,3 +1,7 @@
+---
+description: YADECK の発表モードと発表者モード、デュアルモニターへの投影、印刷して PDF、yadeck png での PNG の書き出し、yadeck check でのレイアウトの検査。
+---
+
 # 発表・印刷・確認
 
 build した HTML だけで、発表、印刷、PNG の書き出しができます。

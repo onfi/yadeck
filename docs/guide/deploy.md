@@ -1,3 +1,7 @@
+---
+description: YADECK で作ったプレゼンテーションを公開する方法。GitHub Actions で GitHub Pages に出す手順と、wrangler で Cloudflare に出す手順。
+---
+
 # 公開する
 
 `npm run build` の出力 `dist/` は静的ファイルだけなので、どの静的ホスティングにも置けます。
@@ -12,6 +16,7 @@
 - 出力の中のパスはすべて相対パス(`./talk.html`、`./logo.svg`)なので、`https://example.github.io/my-deck/` のようなサブパスでもそのまま動きます
 - 発表者モードのウィンドウ同期は同じオリジンが前提です。公開先から開けば動きます
 - build は Google Fonts からフォントを取得して埋め込みます。CI でもネットワークが必要です
+- 公開先の URL が決まったら、`slide.config.ts` の `siteUrl` に書きます。各 deck の HTML に canonical と OGP の URL が入り、SNS で共有したときのカードが正しくなります
 - `dist/png/` は `yadeck png` を実行したときだけ作られます。公開したくなければ、build の前に消すか CI で作らないようにします
 
 ## GitHub Pages

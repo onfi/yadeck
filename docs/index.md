@@ -1,4 +1,5 @@
 ---
+description: YADECK は AI ファーストのスライドジェネレータ。AI が schema 付きの YAML に内容を書き、作り込みたいページだけを JSX で作る。静的 HTML 1 つで発表、印刷、PNG まで。
 layout: home
 
 hero:

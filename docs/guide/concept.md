@@ -1,3 +1,7 @@
+---
+description: YADECK の考え方。内容は YAML、見た目は React の Layout に分け、tags と DI コンテナでつなぐ。Markdown 系のツールとフルスクラッチの作り込みの間を埋める仕組み。
+---
+
 # YADECK とは
 
 YADECK は、AI と一緒にスライドを作ることを前提にしたスライドジェネレータです。

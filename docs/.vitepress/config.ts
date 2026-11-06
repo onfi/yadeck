@@ -3,13 +3,45 @@ import { defineConfig } from "vitepress";
 // GitHub Pages のプロジェクトサイトは /<repo>/ 配下になるので、公開時に DOCS_BASE で渡す
 const base = process.env.DOCS_BASE ?? "/";
 
+/** 公開先。canonical、og:url、サイトマップの絶対 URL に使う */
+const SITE_URL = "https://onfi.github.io/yadeck/";
+const SITE_NAME = "YADECK";
+const SITE_DESCRIPTION =
+  "YADECK は AI ファーストのスライドジェネレータ。AI が schema 付きの YAML に内容を書き、作り込みたいページだけを JSX で作る。静的 HTML 1 つで発表、印刷、PNG まで。";
+
+/** docs/guide/writing.md → https://onfi.github.io/yadeck/guide/writing(cleanUrls に合わせる) */
+function pageUrl(relativePath: string): string {
+  const path = relativePath.replace(/(^|\/)index\.md$/, "$1").replace(/\.md$/, "");
+  return new URL(path, SITE_URL).href;
+}
+
 export default defineConfig({
   lang: "ja",
   title: "YADECK",
-  description: "AI が内容を書き、人が作り込みたいページだけを JSX で作るスライドジェネレータ",
+  description: SITE_DESCRIPTION,
   base,
   cleanUrls: true,
   lastUpdated: false,
+  sitemap: { hostname: SITE_URL },
+  head: [
+    ["meta", { name: "author", content: "onfi" }],
+    ["meta", { property: "og:site_name", content: SITE_NAME }],
+    ["meta", { property: "og:type", content: "website" }],
+    ["meta", { property: "og:locale", content: "ja_JP" }],
+    ["meta", { name: "twitter:card", content: "summary" }],
+  ],
+  // ページごとの OGP と canonical。説明文は各ページの frontmatter の description に書く
+  transformHead({ pageData, title, description }) {
+    const url = pageUrl(pageData.relativePath);
+    return [
+      ["link", { rel: "canonical", href: url }],
+      ["meta", { property: "og:title", content: title }],
+      ["meta", { property: "og:description", content: description }],
+      ["meta", { property: "og:url", content: url }],
+      ["meta", { name: "twitter:title", content: title }],
+      ["meta", { name: "twitter:description", content: description }],
+    ];
+  },
   themeConfig: {
     nav: [
       { text: "ガイド", link: "/guide/concept" },

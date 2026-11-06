@@ -1,3 +1,7 @@
+---
+description: YADECK が tags から Layout を選ぶ規則と、Layout の中で block を取り出す pick / pickAll の規則。一致度の比べ方と例。
+---
+
 # tags の解決規則
 
 ノードの `tags` から Layout を選ぶ規則と、Layout の中で block を取り出す `pick` / `pickAll` の規則です。どちらも同じ「一致度」で候補を比べます。

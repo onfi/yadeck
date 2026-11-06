@@ -1,3 +1,7 @@
+---
+description: yadeck コマンドのリファレンス。dev・build・validate・schema・check・png の各コマンドとオプション、出力されるファイル。
+---
+
 # CLI
 
 deck リポジトリで `npx yadeck <コマンド>` として使います。雛形の `package.json` には、同じ名前の npm scripts が入っています。

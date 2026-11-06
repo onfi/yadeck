@@ -1,3 +1,7 @@
+---
+description: YADECK の見た目の調整。Tailwind v4 の @theme でのテーマのトークン、Google Fonts の埋め込み、public/ に置いた画像などの素材の使い方。
+---
+
 # テーマ・フォント・画像
 
 見た目の調整は data ではなく、`theme.css` と `slide.config.ts` で行います。

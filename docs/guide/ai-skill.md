@@ -1,3 +1,7 @@
+---
+description: エージェントスキル yadeck で、Claude Code・Codex・Antigravity にスライドを作らせる方法。npx skills add でのインストール、進め方、上手に使うコツ。
+---
+
 # AI スキルで作る
 
 deck リポジトリには、スライドの追加・編集の進め方を書いたエージェント用のスキル `yadeck` が入っています。

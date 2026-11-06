@@ -1,3 +1,7 @@
+---
+description: YADECK で deck のリポジトリを作り、最初のページを書いてプレビューし、HTML と PDF に書き出すまでの手順。npx @yadeck/create-slide から始める。
+---
+
 # Getting started
 
 deck 用のリポジトリを作り、最初のページをプレビューして、HTML に書き出すまでを通します。

@@ -156,12 +156,22 @@ exports[`emitJsonSchema > 各段を anyOf で合成し、Layout の tags を con
               "additionalProperties": {},
               "properties": {
                 "author": {
+                  "description": "発表者。省略すると header の author",
                   "type": "string",
                 },
                 "date": {
                   "type": "string",
                 },
+                "description": {
+                  "description": "検索結果や SNS のカードに出す説明。省略すると表紙の副題と各ページの見出しから作る",
+                  "type": "string",
+                },
+                "image": {
+                  "description": "SNS のカードに出す画像。URL か、siteUrl からの相対パス",
+                  "type": "string",
+                },
                 "title": {
+                  "description": "発表タイトル。省略すると header の title、無ければファイル名",
                   "type": "string",
                 },
               },

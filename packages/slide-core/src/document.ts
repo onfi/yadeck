@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
 import type { DeckNode } from "@yadeck/slide-schema";
 import type { Container, RichTextOptions } from "./container.js";
+import { deckMetaTags, metaTagsHtml } from "./meta.js";
 import { renderDeck } from "./render.js";
 
 /**
@@ -112,6 +113,8 @@ export interface DocumentOptions {
   client?: { data: unknown; src: string };
   /** 末尾に「Created with YADECK」を出すか。既定 true */
   credit?: boolean;
+  /** 公開先での deck の URL。canonical と og:url、相対パスの og:image の解決に使う */
+  url?: string;
 }
 
 export const CREDIT_URL = "https://github.com/onfi/yadeck";
@@ -152,6 +155,7 @@ export function renderDocument(deck: DeckNode, options: DocumentOptions): string
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(deck.meta.title ?? "")}</title>
+${metaTagsHtml(deckMetaTags(deck, options.url), escapeHtml)}
 ${extraHead}
 <style>${BASE_CSS}</style>
 <style>${css}</style>

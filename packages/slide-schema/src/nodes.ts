@@ -31,9 +31,11 @@ export const slideBase = z.object({
 
 export const deckMeta = z
   .object({
-    title: z.string().optional(),
-    author: z.string().optional(),
+    title: z.string().optional().describe("発表タイトル。省略すると header の title、無ければファイル名"),
+    author: z.string().optional().describe("発表者。省略すると header の author"),
     date: z.string().optional(),
+    description: z.string().optional().describe("検索結果や SNS のカードに出す説明。省略すると表紙の副題と各ページの見出しから作る"),
+    image: z.string().optional().describe("SNS のカードに出す画像。URL か、siteUrl からの相対パス"),
   })
   .loose();
 
