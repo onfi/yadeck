@@ -27,7 +27,7 @@ present のキー操作は次のとおりです。
 | `L` | レーザーポインタの切り替え |
 | `Esc` | 通常表示に戻る |
 
-`#s3` のように URL の末尾にページ番号(0 始まり)を付けると、そのページから開きます。
+各ページの右下にページ番号(表紙は 1 で、表示はしない)が出ます。`#s3` のように URL の末尾にページ番号を付けると、そのページから開きます。`yadeck check` / `png` の `--slide` と、PNG のファイル名の番号も同じです。
 
 通常表示の末尾には「Created with YADECK」のリンクが出ます。発表モードと印刷には出ません。消したいときは `slide.config.ts` で `credit: false` にします。
 
@@ -53,7 +53,7 @@ present のキー操作は次のとおりです。
 ## PNG に書き出す
 
 ```sh
-npx yadeck png --deck talk              # dist/png/talk/s00.png, s01.png, ...
+npx yadeck png --deck talk              # dist/png/talk/s01.png, s02.png, ...
 npx yadeck png --deck talk --slide 3,4  # 指定したページだけ
 npx yadeck png --scale 2                # 2 倍の解像度
 ```

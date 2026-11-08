@@ -18,6 +18,7 @@ interface IslandData {
   deck: DeckNode;
   richText: Record<string, string>;
   richTextOptions?: SlideConfig["richText"];
+  pageNumbers?: boolean;
 }
 
 export function mount(config: SlideConfig): void {
@@ -40,7 +41,7 @@ export function mount(config: SlideConfig): void {
     const root = createRoot(box);
     flushSync(() =>
       root.render(
-        <DeckProvider container={container} richText={data.richTextOptions} renderText={renderText}>
+        <DeckProvider container={container} richText={data.richTextOptions} renderText={renderText} pageNumbers={data.pageNumbers}>
           <SlideBody data={slide} />
         </DeckProvider>,
       ),

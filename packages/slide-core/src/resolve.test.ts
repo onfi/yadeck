@@ -66,7 +66,7 @@ describe("Container.resolve", () => {
     });
     const b = c.resolve(SlideLayout, ["t", "section-header"]);
     expect(b.tags).toEqual(["section-header", "t"]);
-    expect(Object.keys(b.schema.shape)).toEqual(["id", "tags", "description", "number"]);
+    expect(Object.keys(b.schema.shape)).toEqual(["id", "page", "tags", "description", "sources", "number"]);
   });
 });
 

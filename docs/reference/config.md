@@ -33,6 +33,7 @@ export default defineConfig({
 | `port` | `3000` | dev サーバのポート |
 | `watch` | `[]` | dev で追加で監視するパス。`file:` で参照しているプラグインの `dist` など |
 | `siteUrl` | なし | 公開先の URL(例: `https://example.github.io/my-deck/`)。指定すると各 deck の HTML に canonical と og:url を出し、`meta.image` の相対パスを絶対 URL にする |
+| `pageNumbers` | `true` | 各ページの右下にページ番号を出すか。basic では表紙には出ない |
 | `credit` | `true` | 通常表示と deck の一覧の末尾に「Created with YADECK」とリポジトリへのリンクを出すか。`false` で消す。発表モードと印刷には出ない |
 
 `slide.config.ts` は esbuild でまとめて読み込まれます。`src/` のプラグインや、`file:` で参照しているプラグインも一緒に取り込まれるので、TypeScript と JSX をそのまま書けます。

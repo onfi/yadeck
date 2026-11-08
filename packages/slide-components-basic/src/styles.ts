@@ -104,12 +104,17 @@ export const BASIC_CSS = `
   .b-flow-pop > li .icon { font-family: var(--font-mono); font-size: 26px; line-height: 72px; width: 72px; background: var(--color-primary); margin: 0 auto 28px; display: block; border-radius: 50%; text-align: center; position: relative; letter-spacing: 2px; }
   .b-flow-pop > li .icon::before { content: ""; border: solid transparent; border-width: 12px; border-top-color: var(--color-primary); position: absolute; top: calc(100% - 3px); left: 50%; transform: translateX(-50%); }
   .b-flow-pop > li.is-focus .icon::before { border-top-color: var(--color-accent); }
-  .b-flow-pop > li .via { position: absolute; top: 24px; right: calc(100% + var(--flow-gap) / 2 + 4px); transform: translateX(50%); }
+  /* 段の間のラベルは、番号どうしを結ぶ点線の上に置く(番号の間は箱の間より広く、長いラベルも収まる)。
+     ラベルが 1 つでもあれば、ラベルの無い段の間にも点線を引いてそろえる */
+  .b-flow-pop:has(> li > .via) > li:not(:first-child)::before { content: ""; position: absolute; top: 35px; right: calc(50% + 44px); width: calc(100% + var(--flow-gap) - 88px); border-top: 2px dashed color-mix(in srgb, var(--color-primary) 45%, transparent); }
+  .b-flow-pop > li .via { position: absolute; top: 36px; right: calc(100% + var(--flow-gap) / 2); transform: translate(50%, -50%); background: var(--color-surface); padding: 0 10px; }
   .b-flow-pop > li dl { padding: 32px 10px; word-break: auto-phrase; text-wrap: balance; border: 4px solid var(--color-primary); position: relative; text-align: center; height: calc(100% - 100px); }
   .b-flow-pop > li.is-focus dl { border-color: var(--color-accent); }
   /* 箱の間の ›。隙間(--flow-gap)の中央に置き、枠線に重ねない */
   .b-flow-pop > li:not(:last-child) dl::before { content: ""; width: 36px; height: 36px; display: block; border-top: 8px solid var(--color-primary); border-right: 8px solid var(--color-primary); position: absolute; top: 50%; left: calc(100% + var(--flow-gap) / 2 - 8px); transform: translate(-50%, -50%) rotate(45deg); }
-  .b-flow-pop > li dl dt { margin-bottom: 10px; word-break: keep-all; }
+  .b-flow-pop > li dl dt { margin-bottom: 10px; word-break: keep-all; display: flex; flex-direction: column; align-items: center; }
+  /* 段階のピルは見出しの上に置き、見出しの折り返しに関係なく箱の上端にそろえる */
+  .b-flow-pop > li dt .phase { order: -1; margin: 0 0 12px; }
   .b-flow-pop > li dl dt .phase { display: block; margin: 8px auto 0; padding: .15em .6em; font-size: 18px; width: fit-content; max-width: 100%; box-sizing: border-box; white-space: nowrap; }
 
   /* 枠線を使ったデザイン: 角丸の枠を縦に積み、点線と ▽ でつなぐ */
@@ -154,4 +159,13 @@ export const BASIC_CSS = `
   .b-flow-grid > li .via { display: none; }
   .b-flow-grid > li dl dt { margin-bottom: 6px; }
 }
+
+/* ページ番号と出典。core の既定(レイヤー外)を上書きするので、ここもレイヤーの外に書く。
+   ページ番号は表紙には出さない。地の濃い章扉では、どちらも白を薄くして載せる */
+.yd-page-number { font-family: var(--font-sans); font-size: 18px; color: var(--color-faint); }
+.yd-sources { font-family: var(--font-sans); color: var(--color-faint); padding-left: 3.2em; }
+.yd-sources::before { content: "出典"; position: absolute; left: 0; top: 0; }
+.yd-slide:has(> .b-section) > .yd-sources { color: color-mix(in srgb, var(--color-surface) 55%, transparent); }
+.yd-slide:has(> .b-header) > .yd-page-number { display: none; }
+.yd-slide:has(> .b-section) > .yd-page-number { color: color-mix(in srgb, var(--color-surface) 55%, transparent); }
 `;

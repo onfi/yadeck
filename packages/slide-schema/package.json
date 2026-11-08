@@ -1,6 +1,6 @@
 {
   "name": "@yadeck/slide-schema",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "YADECK: base schema (version / meta / deck-slide-block) and layout interfaces",
   "homepage": "https://onfi.github.io/yadeck/",
   "repository": {

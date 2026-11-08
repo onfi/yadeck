@@ -15,11 +15,14 @@ const dollar = (k: string) => (DOLLAR_KEYS.has(k) ? `$${k}` : k);
 function fullForm(binding: Binding, stage: Stage): JsonSchema {
   const json = z.toJSONSchema(binding.schema, { target: "draft-2020-12", unrepresentable: "any" }) as JsonSchema;
   const props = (json.properties as Record<string, JsonSchema>) ?? {};
-  const required = ((json.required as string[] | undefined) ?? []).filter((k) => k !== "id" && k !== "tags");
+  const required = ((json.required as string[] | undefined) ?? []).filter((k) => k !== "id" && k !== "page" && k !== "tags");
   const out: Record<string, JsonSchema> = {};
   for (const [k, v] of Object.entries(props)) {
-    if (k === "id") continue;
+    if (k === "id" || k === "page") continue;
     out[dollar(k)] = v;
+  }
+  if (stage === "slide") {
+    out.$id = { type: "string", pattern: "^[^\\s#]+$", description: "ページの名前。URL の #名前 や check --slide 名前 で指せる。ページを足し引きしても変わらない" };
   }
   out.$tags = tagsSchema(binding.tags);
   const childKey = CHILD_KEY[stage];

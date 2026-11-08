@@ -26,15 +26,15 @@ describe("validateDeck", () => {
 - - image: { src: a.png, width: "wide" }
 `);
     expect(validateDeck(container, deck)).toEqual([
-      { path: "s0.number", message: expect.stringContaining("expected string") },
-      { path: "s0-b0.src", message: expect.stringContaining("expected string") },
-      { path: "s1-b0.width", message: expect.stringContaining("expected number") },
+      { path: "s1.number", message: expect.stringContaining("expected string") },
+      { path: "s1-b0.src", message: expect.stringContaining("expected string") },
+      { path: "s2-b0.width", message: expect.stringContaining("expected number") },
     ]);
   });
 
   it("type に無いフィールドは拒否する", () => {
     const deck = loadDeckFromYaml(`- section-header: { number: "1", color: red }`);
-    expect(validateDeck(container, deck)).toEqual([{ path: "s0", message: expect.stringMatching(/color/) }]);
+    expect(validateDeck(container, deck)).toEqual([{ path: "s1", message: expect.stringMatching(/color/) }]);
   });
 
   it("正しい deck は問題なし", () => {

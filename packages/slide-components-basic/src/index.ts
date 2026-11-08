@@ -30,7 +30,7 @@ import {
   videoType,
 } from "./layouts.js";
 import { FlowBlock, FlowBoxed, FlowFramed, FlowGrid, flowType } from "./flow.js";
-import { ColumnsSlide, DefaultSlide } from "./panes.js";
+import { ColumnsSlide, DefaultSlide, MainLeftSlide, MainRightSlide, columnsType } from "./panes.js";
 import { BASIC_CSS, DEFAULT_THEME } from "./styles.js";
 
 export * from "./layouts.js";
@@ -57,7 +57,17 @@ export const basic = definePlugin((c) => {
   c.bind(SlideLayout, ["section-header"], SectionHeaderSlide, { type: sectionHeaderType, description: "章扉。number と heading、body だけを描く" });
   c.bind(SlideLayout, ["two-column"], TwoColumnSlide, { description: "2 列の対比。left を付けた block を左列、right を右列、どちらも無い block は前置きとして列の上に置く。列の見出しは heading left / heading right" });
   c.bind(SlideLayout, ["card"], CardSlide, { description: "item をカードにして並べる(3 枚までは 1 行、4 枚は 2×2、5 枚以上は 3 列)。他の block は前置きとして上に置く" });
-  c.bind(SlideLayout, ["columns"], ColumnsSlide, { description: "pane を横一列に等分する(4 まで。5 以上は 3 列 × 2 行)" });
+  c.bind(SlideLayout, ["columns"], ColumnsSlide, {
+    type: columnsType,
+    description: "pane を横一列に並べる(4 まで。5 以上は 3 列 × 2 行)。既定は等分。focus で主役の列を指定すると、その列を他の列の黄金比倍の幅にする",
+  });
+  c.bind(SlideLayout, ["main-left"], MainLeftSlide, {
+    description: "最初の pane を左に大きく置き、残りを右に縦に積む(ト型)。大きい側と積む側は黄金比(約 62:38)",
+  });
+  c.bind(SlideLayout, ["main-right"], MainRightSlide, {
+    description: "最後の pane を右に大きく置き、残りを左に縦に積む(ト型の逆)。説明や前提を左に、主役を右に置くとき。大きい側と積む側は黄金比(約 62:38)",
+  });
+
 
   c.bind(BlockLayout, [], DefaultBlock, { description: "本文 1 行。markdown 可" });
   c.bind(BlockLayout, ["heading"], HeadingBlock, { type: headingType, description: "見出し。slide の上部に置かれる" });

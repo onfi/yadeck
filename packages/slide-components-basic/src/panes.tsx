@@ -1,4 +1,5 @@
-import { Block, RichText, pick, type BlockNode, type SlideNode } from "@yadeck/slide-core";
+import { z } from "zod";
+import { Block, RichText, pick, type BlockNode, type SlideNode, type SlideOf } from "@yadeck/slide-core";
 import type { CSSProperties, ReactNode } from "react";
 import { Notes, PAGE, SlideHeading } from "./chrome.js";
 import { codeChrome, codeSize } from "./layouts.js";
@@ -190,26 +191,116 @@ export function columnsFor(n: number): number {
   return n <= 4 ? Math.max(1, n) : 3;
 }
 
-/** `columns` を付けた slide。pane を横に等分し、5 以上は 3 列 × 2 行に折り返す */
-export const ColumnsSlide = (slide: SlideNode) => {
+/**
+ * 主役と従の比。黄金比 φ。columns の focus では主役の列を他の列の φ 倍に、
+ * main-left / main-right では大きい区画と積む側を φ:1(約 62:38)に分ける
+ */
+export const PHI = (1 + Math.sqrt(5)) / 2;
+
+export const columnsType = z.object({
+  focus: z
+    .number()
+    .int()
+    .min(1)
+    .optional()
+    .describe(
+      "主役にする列の番号(1 始まり。テキストはまとめて 1 つ、code / image / video / flow は 1 つずつ数える)。主役の列を他の列の黄金比倍(約 1.6 倍)の幅にする",
+    ),
+});
+
+/** 列の幅の比。focus の列だけ φ、他は 1 */
+export function columnWeights(cols: number, focusColumn: number | undefined): number[] {
+  return Array.from({ length: cols }, (_, i) => (i === focusColumn ? PHI : 1));
+}
+
+/**
+ * `columns`。pane を横一列に並べる(4 まで。5 以上は 3 列で折り返す)。
+ * 既定は等分。focus で主役を指定すると、主役の列を他の列の黄金比倍の幅にする
+ */
+export const ColumnsSlide = (slide: SlideOf<typeof columnsType>) => {
   const [heading, rest] = pick(slide.items, ["heading"]);
   const panes = toPanes(rest);
   const contentH = SLIDE_H - PAD_Y * 2 - (heading ? HEADING_H : 0) - (heading && slide.description ? DESCRIPTION_H : 0);
+  const contentW = SLIDE_W - PAD_X * 2;
   const cols = columnsFor(panes.length);
   const rows = Math.max(1, Math.ceil(panes.length / cols));
-  const box: PaneBox = { w: (SLIDE_W - PAD_X * 2 - GAP * (cols - 1)) / cols, h: (contentH - GAP * (rows - 1)) / rows };
+  const focusColumn = slide.focus !== undefined && slide.focus <= panes.length ? (slide.focus - 1) % cols : undefined;
+  const weights = columnWeights(cols, focusColumn);
+  const total = weights.reduce((a, b) => a + b, 0);
+  const freeW = contentW - GAP * (cols - 1);
+  const h = (contentH - GAP * (rows - 1)) / rows;
+  const boxOf = (i: number): PaneBox => ({ w: (freeW * weights[i % cols]!) / total, h });
   return (
-    <div className={`${PAGE} b-columns`} style={codeFitStyle(panes.map((pane) => ({ pane, box })))}>
+    <div className={`${PAGE} b-columns`} style={codeFitStyle(panes.map((pane, i) => ({ pane, box: boxOf(i) })))}>
       {heading && <SlideHeading block={heading} description={slide.description} />}
       <div
         className="grid min-h-0 flex-1 gap-8"
-        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))` }}
+        style={{
+          gridTemplateColumns: weights.map((w) => `minmax(0, ${w}fr)`).join(" "),
+          gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+        }}
       >
         {panes.map((pane, i) => (
-          <PaneView key={i} pane={pane} box={box} />
+          <PaneView key={i} pane={pane} box={boxOf(i)} />
         ))}
       </div>
       <Notes items={slide.items} />
     </div>
   );
 };
+
+/** 縦に積んだ pane の寸法(高さは paneWeights の比で分ける) */
+function stackBoxes(w: number, h: number, panes: Pane[]): PaneBox[] {
+  const weights = paneWeights(panes);
+  const total = weights.reduce((a, b) => a + b, 0);
+  const free = h - GAP * (panes.length - 1);
+  return weights.map((wt) => ({ w, h: (free * wt) / total, grow: wt }));
+}
+
+/**
+ * `main-left` / `main-right`。1 つの区画を大きく置き、残りを反対側に縦に積む(ト型とその逆)。
+ * main-left は最初の区画を左に、main-right は最後の区画を右に大きく置く(左から右へ読む順のまま)。
+ * 大きい区画と積む側は黄金比(約 62:38)で分ける
+ */
+function MainSideSlide({ slide, side }: { slide: SlideNode; side: "left" | "right" }) {
+  const [heading, rest] = pick(slide.items, ["heading"]);
+  const panes = toPanes(rest);
+  const contentH = SLIDE_H - PAD_Y * 2 - (heading ? HEADING_H : 0) - (heading && slide.description ? DESCRIPTION_H : 0);
+  const free = SLIDE_W - PAD_X * 2 - GAP;
+  const main = side === "left" ? panes[0] : panes[panes.length - 1];
+  const others = side === "left" ? panes.slice(1) : panes.slice(0, -1);
+  const mainBox: PaneBox = { w: (free * PHI) / (PHI + 1), h: contentH };
+  const stack = stackBoxes(free - mainBox.w, contentH, others);
+  const placed = [...(main ? [{ pane: main, box: mainBox }] : []), ...others.map((pane, i) => ({ pane, box: stack[i]! }))];
+  const mainView = main && <PaneView pane={main} box={others.length > 0 ? mainBox : { w: free + GAP, h: contentH }} />;
+  const stackView = (
+    <div className="flex min-h-0 min-w-0 flex-col gap-8">
+      {others.map((pane, i) => (
+        <PaneView key={i} pane={pane} box={stack[i]!} />
+      ))}
+    </div>
+  );
+  const columns = others.length === 0 ? "minmax(0, 1fr)" : side === "left" ? `minmax(0, ${PHI}fr) minmax(0, 1fr)` : `minmax(0, 1fr) minmax(0, ${PHI}fr)`;
+  return (
+    <div className={`${PAGE} b-main-${side}`} style={codeFitStyle(placed)}>
+      {heading && <SlideHeading block={heading} description={slide.description} />}
+      <div className="grid min-h-0 flex-1 gap-8" style={{ gridTemplateColumns: columns }}>
+        {side === "left" ? (
+          <>
+            {mainView}
+            {others.length > 0 && stackView}
+          </>
+        ) : (
+          <>
+            {others.length > 0 && stackView}
+            {mainView}
+          </>
+        )}
+      </div>
+      <Notes items={slide.items} />
+    </div>
+  );
+}
+
+export const MainLeftSlide = (slide: SlideNode) => <MainSideSlide slide={slide} side="left" />;
+export const MainRightSlide = (slide: SlideNode) => <MainSideSlide slide={slide} side="right" />;

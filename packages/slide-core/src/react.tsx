@@ -6,6 +6,7 @@ import {
   type BlockNode,
   type DeckNode,
   type SlideNode,
+  type Source,
 } from "@yadeck/slide-schema";
 import type { Container, RichTextOptions } from "./container.js";
 import { isInline } from "./inline.js";
@@ -22,6 +23,7 @@ interface DeckContextValue {
   container: Container;
   richText: RichTextOptions;
   renderText: RenderText;
+  pageNumbers: boolean;
 }
 
 const DeckContext = createContext<DeckContextValue | null>(null);
@@ -40,11 +42,13 @@ export interface DeckProviderProps {
   richText?: RichTextOptions;
   /** RichText の変換。省略時は HTML エスケープだけ(renderDeck は markdown + sanitize を渡す) */
   renderText?: RenderText;
+  /** 各ページの右下にページ番号を出すか。既定 true */
+  pageNumbers?: boolean;
   children?: ReactNode;
 }
 
-export function DeckProvider({ container, richText = {}, renderText = escapeText, children }: DeckProviderProps) {
-  return <DeckContext.Provider value={{ container, richText, renderText }}>{children}</DeckContext.Provider>;
+export function DeckProvider({ container, richText = {}, renderText = escapeText, pageNumbers = true, children }: DeckProviderProps) {
+  return <DeckContext.Provider value={{ container, richText, renderText, pageNumbers }}>{children}</DeckContext.Provider>;
 }
 
 export function Deck({ data }: { data: DeckNode }) {
@@ -59,11 +63,59 @@ export function isClientSlide(container: Container, slide: SlideNode): boolean {
   return slide.items.some((b) => container.resolve(BlockLayout, b.tags).client);
 }
 
-/** 1 枚のスライドの中身(枠の内側)。ブラウザで描き直すときはここから描く */
+/** ページ番号。loader が付けた page、無ければ id(s9)の数字 */
+export function pageOf(slide: SlideNode): number | string {
+  return slide.page ?? slide.id.replace(/^s/, "");
+}
+
+/** 出典を { title, url } にそろえる。URL だけのときは、スキームと末尾の / を除いた URL を題名にする */
+export function normalizeSource(source: Source): { title: string; url?: string } {
+  if (typeof source !== "string") return source;
+  if (!/^https?:\/\//.test(source)) return { title: source };
+  return { title: source.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, ""), url: source };
+}
+
+/** ページの下端の出典。並べ方と見た目はプラグインの CSS が .yd-sources で決める */
+export function Sources({ sources }: { sources?: Source[] }) {
+  if (!sources?.length) return null;
+  return (
+    <ol className="yd-sources">
+      {sources.map((s, i) => {
+        const { title, url } = normalizeSource(s);
+        return (
+          <li key={i} title={url ? `${title}\n${url}` : title}>
+            {url ? (
+              <a href={url} target="_blank" rel="noopener noreferrer">
+                {title}
+              </a>
+            ) : (
+              title
+            )}
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+/**
+ * 1 枚のスライドの中身(枠の内側)。Layout と、下端の出典、右下のページ番号。ブラウザで描き直すときはここから描く。
+ * ページ番号は loader が付けた page。見た目(色、表紙で隠すか)はプラグインの CSS が .yd-page-number で決める
+ */
 export function SlideBody({ data }: { data: SlideNode }) {
-  const { container } = useDeckContext();
+  const { container, pageNumbers } = useDeckContext();
   const Layout = container.resolve(SlideLayout, data.tags).component;
-  return <Layout {...data} />;
+  return (
+    <>
+      <Layout {...data} />
+      <Sources sources={data.sources} />
+      {pageNumbers && (
+        <div className="yd-page-number" aria-hidden="true">
+          {pageOf(data)}
+        </div>
+      )}
+    </>
+  );
 }
 
 /**
@@ -77,6 +129,7 @@ export function Slide({ data }: { data: SlideNode }) {
     <section
       className="yd-slide-frame"
       id={data.id}
+      data-page={pageOf(data)}
       data-tags={data.tags.join(" ")}
       data-yd-client={isClientSlide(container, data) ? "" : undefined}
     >

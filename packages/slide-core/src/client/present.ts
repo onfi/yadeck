@@ -39,10 +39,18 @@ let index = indexFromHash();
 let black = false;
 let laser = false;
 
-function indexFromHash(): number {
-  const id = location.hash.slice(1);
+/** #名前 か #s9(ページ番号)からページを引く。見つからなければ -1 */
+function findFromHash(): number {
+  const id = decodeURIComponent(location.hash.slice(1));
+  if (!id) return -1;
   const i = frames.findIndex((f) => f.id === id);
-  return i < 0 ? 0 : i;
+  if (i >= 0) return i;
+  const m = /^s(\d+)$/.exec(id);
+  return m ? frames.findIndex((f) => f.dataset.page === m[1]) : -1;
+}
+
+function indexFromHash(): number {
+  return Math.max(0, findFromHash());
 }
 
 function send(msg: Msg): void {
@@ -215,6 +223,9 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, te
 // ---- 通常モード ----
 
 function setupBrowse(): void {
+  // 名前を付けたページを #s9 で開いたときは、要素の id が違うのでブラウザが動かない。自分で移る
+  const target = frames[findFromHash()];
+  if (target && target.id !== decodeURIComponent(location.hash.slice(1))) target.scrollIntoView();
   const bar = el("div", "yd-toolbar");
   const present = el("button", "", "▶ Present (P)");
   present.onclick = () => (location.href = urlWithMode("present"));
@@ -242,6 +253,8 @@ function setupPresent(): void {
   goto(index, false);
   bindNavigationKeys();
   deck?.addEventListener("click", (e) => {
+    // 出典などのリンクは開くだけで、ページは送らない
+    if ((e.target as Element | null)?.closest("a")) return;
     if (!laser) goto(index + (e.shiftKey ? -1 : 1));
   });
   if (deck) bindLaser(deck);

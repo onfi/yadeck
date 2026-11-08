@@ -143,6 +143,8 @@ export interface SlideConfig {
   watch?: string[];
   /** 通常表示と deck の一覧の末尾に「Created with YADECK」とリポジトリへのリンクを出すか。既定 true */
   credit?: boolean;
+  /** 各ページの右下にページ番号を出すか。既定 true(表紙には出さないかはプラグインの CSS が決める) */
+  pageNumbers?: boolean;
   /**
    * 公開先の URL(例: https://example.github.io/my-deck/)。指定すると各 deck の HTML に
    * canonical と og:url を出し、meta.image の相対パスを絶対 URL にする

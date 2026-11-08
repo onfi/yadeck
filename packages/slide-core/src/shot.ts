@@ -10,6 +10,7 @@ import { pathToFileURL } from "node:url";
  *
  * スライドは print 用の CSS(等倍で縦に並ぶ)で描画するので、1 枚 = 1280x720 の .yd-slide をそのまま測れる。
  * 装飾として意図的に枠外へ出す要素は、Layout 側で aria-hidden="true" を付けて検査から外す。
+ * 出典(.yd-sources)も、下端の余白に置いて省略記号で切る前提なので検査しない。
  */
 
 export type IssueLevel = "error" | "warn";
@@ -20,8 +21,10 @@ export interface SlideIssue {
 }
 
 export interface SlideReport {
-  /** スライドの id(s0, s1, ...)。present モードの #s0 と同じ */
+  /** スライドの id。`$id` で付けた名前か、s1, s2, ...。URL の # と同じ */
   id: string;
+  /** 1 始まりのページ番号。右下の表示と同じ */
+  page: number;
   issues: SlideIssue[];
   png?: string;
 }
@@ -33,8 +36,8 @@ export interface ShotOptions {
   pngDir?: string;
   /** true なら問題のあったスライドだけ PNG にする */
   pngOnlyIssues?: boolean;
-  /** 対象のスライド番号(id の数字)。省略で全部 */
-  slides?: number[];
+  /** 対象のページ。ページ番号(9 / s9)か `$id` の名前。省略で全部 */
+  slides?: string[];
   /** PNG の倍率 */
   scale?: number;
 }
@@ -79,15 +82,14 @@ export class ShotSession {
       await page.goto(pathToFileURL(options.htmlFile).href, { waitUntil: "load" });
       await page.evaluate(() => document.fonts.ready.then(() => undefined));
       const reports = (await page.evaluate(inspectSlides, { safe: SAFE_MARGIN, minCode: MIN_CODE_FONT })) as SlideReport[];
-      const wanted = options.slides && options.slides.length > 0 ? new Set(options.slides) : undefined;
-      const selected = reports.filter((r) => !wanted || wanted.has(Number(r.id.replace(/^s/, ""))));
+      const selected = options.slides && options.slides.length > 0 ? selectSlides(reports, options.slides) : reports;
       if (options.pngDir) {
         fs.mkdirSync(options.pngDir, { recursive: true });
         const slides = page.locator(".yd-slide");
         for (const r of selected) {
           if (options.pngOnlyIssues && r.issues.length === 0) continue;
           const index = reports.indexOf(r);
-          const file = path.join(options.pngDir, `${pngName(r.id)}.png`);
+          const file = path.join(options.pngDir, `${pngName(r.page)}.png`);
           await waitForClient(page, r.id);
           await slides.nth(index).screenshot({ path: file });
           r.png = file;
@@ -117,10 +119,17 @@ async function waitForClient(page: import("playwright").Page, id: string): Promi
 /** マウント後、アニメーションや WebGL の最初の描画を待つ時間 */
 const CLIENT_SETTLE_MS = 800;
 
-/** s9 → s09。ファイル名で並べたときにスライド順になるよう 2 桁にそろえる */
-export function pngName(id: string): string {
-  const n = Number(id.replace(/^s/, ""));
-  return Number.isFinite(n) ? `s${String(n).padStart(2, "0")}` : id;
+/** 9 → s09。ファイル名で並べたときにスライド順になるよう 2 桁にそろえる */
+export function pngName(page: number): string {
+  return `s${String(page).padStart(2, "0")}`;
+}
+
+/** --slide の指定(9 / s9 / 名前)でページを選ぶ。どれにも当たらない指定はエラーにする */
+export function selectSlides<T extends { id: string; page: number }>(reports: T[], wanted: string[]): T[] {
+  const hit = (r: T, w: string) => r.id === w || String(r.page) === w.replace(/^s(?=\d+$)/, "");
+  const missing = wanted.filter((w) => !reports.some((r) => hit(r, w)));
+  if (missing.length > 0) throw new Error(`--slide に当たるページがありません: ${missing.join(", ")}`);
+  return reports.filter((r) => wanted.some((w) => hit(r, w)));
 }
 
 /**
@@ -141,7 +150,8 @@ function inspectSlides({ safe, minCode }: { safe: number; minCode: number }): Sl
     const t = snippet(el);
     return t ? `${cls} 「${t}」` : cls;
   };
-  const skip = (el: Element) => !!el.closest('[aria-hidden="true"], .yd-notes');
+  // 出典は下端の余白に置き、長い題名は省略記号で切る前提なので、余白と切れの検査から外す
+  const skip = (el: Element) => !!el.closest('[aria-hidden="true"], .yd-notes, .yd-sources');
   const outside = (r: DOMRect, b: DOMRect, m = 0) =>
     r.left < b.left + m - 0.5 || r.top < b.top + m - 0.5 || r.right > b.right - m + 0.5 || r.bottom > b.bottom - m + 0.5;
 
@@ -215,6 +225,6 @@ function inspectSlides({ safe, minCode }: { safe: number; minCode: number }): Sl
       if (rows.some((row) => row.getBoundingClientRect().height > lh * 1.5)) add("warn", `コードの行が折り返している: ${name}`);
     }
 
-    return { id: frame.id, issues };
+    return { id: frame.id, page: Number(frame.dataset.page), issues };
   });
 }

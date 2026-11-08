@@ -20,8 +20,8 @@ interface CliOptions {
   port?: number;
   /** check / png: 対象の deck 名(拡張子なし)。複数可 */
   decks: string[];
-  /** check / png: 対象のスライド番号(#s9 の 9)。複数可 */
-  slides: number[];
+  /** check / png: 対象のページ番号(右下の番号、URL の #s9 の 9)。複数可 */
+  slides: string[];
   /** check: 問題のあったスライドを PNG にも書き出す */
   png?: boolean;
   /** png: 倍率 */
@@ -39,7 +39,7 @@ const USAGE = `usage: yadeck <command> [options]
 options:
   --config slide.config.ts   --out dist   --port 3000
   --deck <name>    check / png の対象 deck(複数指定可)
-  --slide <n>      check / png の対象スライド(#s9 なら 9。カンマ区切り・複数指定可)
+  --slide <n|名前>  check / png の対象ページ(右下の番号 9 か s9、または $id の名前。カンマ区切り・複数指定可)
   --png            check で問題のあったスライドを PNG にも書き出す
   --scale <n>      png の倍率(既定 1 = 1280x720)`;
 
@@ -52,7 +52,7 @@ function parseArgs(argv: string[]): { command: string; options: CliOptions } {
     else if (a === "--out") options.out = argv[++i];
     else if (a === "--port") options.port = Number(argv[++i]);
     else if (a === "--deck") options.decks.push(...(argv[++i] ?? "").split(",").filter(Boolean));
-    else if (a === "--slide") options.slides.push(...(argv[++i] ?? "").split(",").filter(Boolean).map(Number));
+    else if (a === "--slide") options.slides.push(...(argv[++i] ?? "").split(",").filter(Boolean));
     else if (a === "--png") options.png = true;
     else if (a === "--scale") options.scale = Number(argv[++i]);
     else if (!command) command = a;
@@ -179,6 +179,7 @@ async function buildAll(project: Project, extraScripts: string[] = [], embed = t
         container,
         richText: config.richText,
         onRichText: (text, html) => (richTextCache[text] = html),
+        pageNumbers: config.pageNumbers,
       });
       // ブラウザで描き直すページがあれば、deck と RichText の変換結果を埋め込み、ブラウザ向けのバンドルを読ませる
       const needsClient = body.includes("data-yd-client");
@@ -188,7 +189,7 @@ async function buildAll(project: Project, extraScripts: string[] = [], embed = t
         ? `<style>${await embedFonts({ fonts, html: [body], cacheDir: path.join(project.cacheDir, "fonts") })}</style>`
         : fontLinkTags(fonts);
       const client = needsClient
-        ? { data: { deck, richText: richTextCache, richTextOptions: config.richText }, src: `./${CLIENT_BUNDLE}` }
+        ? { data: { deck, richText: richTextCache, richTextOptions: config.richText, pageNumbers: config.pageNumbers }, src: `./${CLIENT_BUNDLE}` }
         : undefined;
       const url = config.siteUrl ? new URL(`${encodeURIComponent(name)}.html`, config.siteUrl.replace(/\/?$/, "/")).href : undefined;
       const html = renderDocument(deck, { container, richText: config.richText, body, css, extraScripts, extraHead, client, credit: config.credit, url });
@@ -460,6 +461,9 @@ async function renderDecks(
 
 const pngDirOf = (project: Project, deck: string) => path.join(project.outDir, "png", deck);
 
+/** check の結果の行頭。名前を付けたページは「#名前 (p.9)」、それ以外は「#s9」 */
+const slideLabel = (r: { id: string; page: number }) => (r.id === `s${r.page}` ? `#${r.id}` : `#${r.id} (p.${r.page})`);
+
 async function check(options: CliOptions): Promise<void> {
   const results = await renderDecks(options, (session, project, deck, htmlFile) =>
     session.run({ htmlFile, slides: options.slides, pngDir: options.png ? pngDirOf(project, deck) : undefined, pngOnlyIssues: true }),
@@ -473,7 +477,7 @@ async function check(options: CliOptions): Promise<void> {
       for (const i of r.issues) {
         if (i.level === "error") errors++;
         else warns++;
-        console.log(`      #${r.id}  ${i.level === "error" ? "error" : "warn "}  ${i.message}`);
+        console.log(`      ${slideLabel(r)}  ${i.level === "error" ? "error" : "warn "}  ${i.message}`);
       }
       if (r.png) console.log(`             png: ${path.relative(options.cwd, r.png)}`);
     }

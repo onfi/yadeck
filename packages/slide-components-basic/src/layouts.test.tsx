@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createContainer, loadDeckFromYaml, renderDeck, validateDeck } from "@yadeck/slide-core";
-import { basic } from "./index.js";
+import { basic, columnWeights, PHI } from "./index.js";
 
 const container = createContainer([basic]);
 
@@ -75,5 +75,41 @@ describe("発表者ノート", () => {
       "- card: { $items: [{ heading: h }, { item: { title: a } }, { note: N }] }",
     ];
     for (const yaml of cases) expect(render(yaml).match(/yd-notes/g) ?? [], yaml).toHaveLength(1);
+  });
+});
+
+describe("columns の focus", () => {
+  it("主役の列を他の列の黄金比倍の幅にする。focus が無ければ等分", () => {
+    expect(columnWeights(3, undefined)).toEqual([1, 1, 1]);
+    expect(columnWeights(3, 2)).toEqual([1, 1, PHI]);
+    const html = render("- columns:\n    focus: 3\n    $items:\n    - code: a\n    - code: b\n    - code: c");
+    expect(html).toContain(`grid-template-columns:minmax(0, 1fr) minmax(0, 1fr) minmax(0, ${PHI}fr)`);
+  });
+});
+
+describe("main-left / main-right", () => {
+  const order = (html: string) => Array.from(html.matchAll(/src="\.\/([a-z])\.png"/g), (m) => m[1]).join("");
+  const items = "\n    $items:\n    - image: { src: ./a.png }\n    - image: { src: ./b.png }\n    - image: { src: ./c.png }";
+
+  it("main-left は最初の区画を左に大きく、残りを右に積む", () => {
+    const html = render(`- main-left:${items}`);
+    expect(html).toContain(`grid-template-columns:minmax(0, ${PHI}fr) minmax(0, 1fr)`);
+    expect(order(html)).toBe("abc");
+  });
+
+  it("main-right は最後の区画を右に大きく、残りを左に積む(読む順は変えない)", () => {
+    const html = render(`- main-right:${items}`);
+    expect(html).toContain(`grid-template-columns:minmax(0, 1fr) minmax(0, ${PHI}fr)`);
+    expect(order(html)).toBe("abc");
+  });
+});
+
+describe("ページ番号", () => {
+  it("各ページの右下に 1 始まりの番号を出し、pageNumbers: false なら出さない", () => {
+    const deck = loadDeckFromYaml("- 一枚目\n- 二枚目", { name: "t" });
+    const html = renderDeck(deck, { container });
+    expect(html).toContain('id="s2"');
+    expect(html).toContain('<div class="yd-page-number" aria-hidden="true">2</div>');
+    expect(renderDeck(deck, { container, pageNumbers: false })).not.toContain("yd-page-number");
   });
 });

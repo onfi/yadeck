@@ -78,9 +78,11 @@ build した HTML には、検索結果や SNS のカードに使われる meta 
 
 | フィールド | 内容 |
 |---|---|
+| `$id` | ページの名前。URL の `#名前`、`yadeck check --slide 名前` で指せる。ページを足し引きしても変わらない |
 | `description` | 見出しの下に添える 1 行の説明。そのページが何を示すかを短く書く |
+| `sources` | ページの下端に小さく出す出典(8 件まで)。URL の文字列か、`{ title, url }` |
 
-`description` と子(`$items`)を両方書くときは、次のどちらかの形にします。
+これらと子(`$items`)を両方書くときは、次のどちらかの形にします。
 
 ```yaml
 - description: 原稿をそのままスライドにはしない           # tags の無い slide
@@ -91,6 +93,37 @@ build した HTML には、検索結果や SNS のカードに使われる meta 
     $items:
       - heading: 伝わるページには型がある
 ```
+
+### ページの名前(`$id`)
+
+ページは、右下のページ番号(URL の `#s9`)でも指せます。ただし、前にページを足すと番号がずれます。後から何度も手を入れるページには、`$id` で名前を付けておくと、ページを足し引きしても同じ名前で指せます。
+
+```yaml
+- $id: three-stages
+  description: 原稿とスライドの間には 3 つの段階がある
+  $items:
+    - heading: 原稿をそのままスライドにはしない
+```
+
+- URL は `deck.html#three-stages`。`#s9` の形もそのまま使えます
+- `yadeck check --slide three-stages` で、そのページだけを検査できます。結果には `#three-stages (p.9)` のように、名前とページ番号の両方が出ます
+- 名前に空白と `#` は使えません。`s9` のようにページ番号と同じ形の名前と、重複した名前は検証でエラーになります
+
+### 出典(`sources`)
+
+ページの下端の余白に、小さく薄く出典を出します。リンクは新しいタブで開きます。1 行に 4 件まで並び、8 件で 2 行になります。長い題名は省略記号で切れます(マウスを乗せると全体が見えます)。
+
+```yaml
+- description: デフォルトコンストラクタは javac が足している
+  sources:
+    - { title: "JLS §8.8.9 Default Constructor", url: "https://docs.oracle.com/javase/specs/jls/se25/html/jls-8.html#jls-8.8.9" }
+    - https://openjdk.org/jeps/484          # URL だけなら、URL を題名にする
+    - 社内の設計資料                          # URL の無い出典
+  $items:
+    - heading: 書いていないコンストラクタがある
+```
+
+`yadeck check` は出典を検査しません(下端の余白に置き、長い題名を切る前提のため)。
 
 ## テキストの書式(RichText)
 

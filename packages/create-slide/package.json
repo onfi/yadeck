@@ -1,6 +1,6 @@
 {
   "name": "@yadeck/create-slide",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "YADECK: scaffold a deck repository (npx @yadeck/create-slide my-deck)",
   "homepage": "https://onfi.github.io/yadeck/",
   "repository": {

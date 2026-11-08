@@ -38,6 +38,14 @@ body { background: #d9d9d9; }
 .yd-toolbar button, .yd-footer button, .yd-footer select {
   font: 14px system-ui, sans-serif; padding: 6px 12px; border-radius: 6px; border: 1px solid #888; background: #fff; color: #222; cursor: pointer;
 }
+/* 出典の既定の見た目。下端の余白に小さく薄く、4 件で 1 行、8 件で 2 行に収める。長い題名は省略記号で切る */
+.yd-sources { position: absolute; left: 80px; right: 96px; bottom: 12px; margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, max-content)); column-gap: 18px; font: 11px/1.5 system-ui, sans-serif; color: #999; z-index: 4; }
+.yd-sources li { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.yd-sources a { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); text-underline-offset: 2px; }
+.yd-sources a:hover { color: #555; }
+/* ページ番号の既定の見た目。色や表紙で隠すかはプラグインの CSS が上書きする */
+.yd-page-number { position: absolute; right: 32px; bottom: 18px; font: 16px system-ui, sans-serif; color: #999; font-variant-numeric: tabular-nums; pointer-events: none; z-index: 4; }
+
 /* レーザーポインタの点。中心を白く、外側を赤く光らせる */
 .yd-pointer { position: absolute; width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle, #fff 0 18%, #ff3030 40%, rgba(255,0,0,.85) 62%, rgba(255,0,0,0) 72%); box-shadow: 0 0 14px 6px rgba(255,30,30,.55), 0 0 36px 12px rgba(255,0,0,.25); transform: translate(-50%,-50%); pointer-events: none; display: none; z-index: 5; }
 body.yd-laser .yd-stage, body.yd-laser.yd-present .yd-deck { cursor: crosshair; touch-action: none; user-select: none; }

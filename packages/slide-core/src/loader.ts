@@ -142,12 +142,26 @@ export interface LoadOptions {
   name?: string;
 }
 
+/** `$id` の名前を確かめる。URL の # に使うので空白と # を含めず、ページ番号の形(s9)と重複は許さない */
+function checkSlideId(id: unknown, page: number, named: Map<string, number>, path: string): string {
+  if (typeof id !== "string" || !/^[^\s#]+$/.test(id)) throw new LoadError(`$id must be a string without spaces or "#"`, path);
+  if (/^s\d+$/.test(id)) throw new LoadError(`$id "${id}" looks like a page number; choose another name`, path);
+  const other = named.get(id);
+  if (other !== undefined) throw new LoadError(`$id "${id}" is already used on page ${other}`, path);
+  named.set(id, page);
+  return id;
+}
+
 /** 正規形に id と meta / version の補完を施して DeckNode にする */
 export function finalizeDeck(raw: RawMap, options: LoadOptions = {}): DeckNode {
+  const named = new Map<string, number>();
   const slides = (raw.slides as RawMap[]).map((s, i): SlideNode => {
-    const sid = `s${i}`;
+    // ページ番号は 1 始まり。右下の表示、check の --slide 9、PNG の s09.png、URL の #s9 がそろう。
+    // `$id` で名前を付けたページは、ページを足し引きしても同じ名前で指せる(URL の #名前、--slide 名前)
+    const page = i + 1;
+    const sid = s.id === undefined ? `s${page}` : checkSlideId(s.id, page, named, `$.slides[${i}]`);
     const items = (s.items as RawMap[]).map((b, j): BlockNode => ({ ...b, id: `${sid}-b${j}` }) as BlockNode);
-    return { ...s, id: sid, items } as SlideNode;
+    return { ...s, id: sid, page, items } as SlideNode;
   });
   const version = raw.version === undefined ? SCHEMA_VERSION : String(raw.version);
   if (version !== SCHEMA_VERSION) {

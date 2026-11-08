@@ -1,6 +1,6 @@
 {
   "name": "@yadeck/slide-components-basic",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "YADECK: standard layouts (title, section, auto pane layout, two-column, cards, columns, code, image, video, flow diagrams, notes)",
   "homepage": "https://onfi.github.io/yadeck/",
   "repository": {
@@ -31,8 +31,8 @@
     "build": "tsc -b"
   },
   "dependencies": {
-    "@yadeck/slide-core": "^0.1.1",
-    "@yadeck/slide-schema": "^0.1.1",
+    "@yadeck/slide-core": "^0.1.2",
+    "@yadeck/slide-schema": "^0.1.2",
     "highlight.js": "^11.12.0"
   },
   "peerDependencies": {
