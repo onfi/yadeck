@@ -41,8 +41,8 @@ npm install
   "png": "yadeck png"
 },
 "dependencies": {
-  "@yadeck/slide-components-basic": "^0.1.2",
-  "@yadeck/slide-core": "^0.1.2",
+  "@yadeck/slide-components-basic": "^0.1.3",
+  "@yadeck/slide-core": "^0.1.3",
   "react": "^19.3.0",
   "react-dom": "^19.3.0",
   "zod": "^4.6.0"

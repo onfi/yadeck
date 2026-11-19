@@ -125,7 +125,7 @@ basic の Layout や部品(`PAGE`、`SlideHeading`、`CodeBlock` など)は expo
   "types": "./dist/index.d.ts",
   "files": ["dist", "example"],
   "peerDependencies": {
-    "@yadeck/slide-core": "^0.1.2",
+    "@yadeck/slide-core": "^0.1.3",
     "react": "^19.0.0",
     "zod": "^4.0.0"
   }
