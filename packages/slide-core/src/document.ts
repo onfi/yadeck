@@ -25,6 +25,8 @@ body { background: #d9d9d9; }
 }
 @media print {
   @page { size: 1280px 720px; margin: 0; }
+  /* ブラウザは印刷時に背景色・背景画像を省くので、画面と同じ色で出させる */
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   body { background: none; }
   .yd-deck { display: block; padding: 0; }
   .yd-slide-frame { width: var(--yd-w); height: var(--yd-h); box-shadow: none; break-after: page; page-break-after: always; }

@@ -14,11 +14,13 @@ const files = [
   "packages/slide-components-basic/package.json",
   "packages/create-slide/package.json",
   "packages/create-slide/template/package.json",
+  "packages/create-slide/template-plugin/package.json",
 ];
 
 for (const file of files) {
   const json = JSON.parse(fs.readFileSync(file, "utf8"));
-  if (!file.includes("/template/")) json.version = version;
+  // 雛形の version は作られるリポジトリのものなので触らず、@yadeck/* の依存だけを上げる
+  if (!/\/template(-plugin)?\//.test(file)) json.version = version;
   for (const field of ["dependencies", "devDependencies", "peerDependencies"]) {
     for (const name of Object.keys(json[field] ?? {})) {
       if (name.startsWith("@yadeck/")) json[field][name] = `^${version}`;

@@ -14,6 +14,7 @@ deck リポジトリで `npx yadeck <コマンド>` として使います。雛�
 | `yadeck schema` | `.slide/deck.schema.json` を書き出す |
 | `yadeck check` | ビルドして Chromium で描画し、はみ出し・切れ・コードの縮みを検査する |
 | `yadeck png` | ビルドして各ページを PNG に書き出す |
+| `yadeck add <pkg>` | プラグインを npm で入れ、`slide.config.ts` の `plugins` に足して schema を更新する。パス(`../my-plugin`)でもよい |
 
 ## オプション
 

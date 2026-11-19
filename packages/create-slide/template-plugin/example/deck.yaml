@@ -1,0 +1,7 @@
+# yaml-language-server: $schema=../.slide/deck.schema.json
+# このプラグインの見本。プラグインの一覧のサムネイルにも使う。bind した tags をひととおり使う
+- hero:
+    message: 一言を、全面に大きく
+    $items:
+      - 補足は一言の下に小さく添える
+      - note: 発表者ノートも書ける

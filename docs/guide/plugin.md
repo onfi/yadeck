@@ -1,5 +1,5 @@
 ---
-description: YADECK のプラグインを npm パッケージとして作る方法。Interface と bind、tags の解決、スタイル、パッケージの構成、テスト。
+description: YADECK のプラグインを npm パッケージとして作る方法。create-slide --plugin の雛形、Interface と bind、tags の解決、スタイル、パッケージの構成、テスト、公開の決まり。
 ---
 
 # プラグイン開発
@@ -8,6 +8,35 @@ description: YADECK のプラグインを npm パッケージとして作る方�
 basic プラグイン(`@yadeck/slide-components-basic`)もプラグインの 1 つです。
 
 Layout の書き方そのものは [独自テンプレート](/guide/custom-template) と同じです。このページでは、パッケージとして作るときの決まりを説明します。
+
+## 雛形から作る
+
+```sh
+npx @yadeck/create-slide --plugin yadeck-plugin-hero
+cd yadeck-plugin-hero
+npm install
+npm run dev     # example/ の見本をプレビュー(src を変えると再読み込み)
+```
+
+```
+yadeck-plugin-hero/
+├─ src/
+│  ├─ index.ts           # definePlugin で bind して default export
+│  ├─ layouts.tsx        # Layout と data の型(サンプルは一言を全面に出す hero)
+│  └─ layouts.test.tsx
+├─ example/deck.yaml     # 見本の deck。npm に同梱し、プラグインの一覧のサムネイルにも使う
+├─ slide.config.ts       # 見本をプレビューする設定(公開しない)
+├─ AGENTS.md             # AI 向けの、Layout を書くときの約束
+├─ package.json
+└─ tsconfig.json
+```
+
+| コマンド | 内容 |
+|---|---|
+| `npm run dev` | 見本をプレビューする |
+| `npm test` | Layout のテスト |
+| `npm run check` / `npm run png` | 見本を検査する / PNG に書き出す(`.slide/preview/` に出る) |
+| `npm run build` | `dist/` に出力する |
 
 ## プラグインの形
 
@@ -85,25 +114,18 @@ basic の Layout や部品(`PAGE`、`SlideHeading`、`CodeBlock` など)は expo
 
 ## パッケージの構成
 
-```
-my-yadeck-theme/
-├─ package.json
-├─ tsconfig.json
-└─ src/
-   ├─ index.ts        # definePlugin して default export
-   ├─ layouts.tsx
-   └─ layouts.test.tsx
-```
+雛形の `package.json` の要点です。
 
 ```json
 {
-  "name": "my-yadeck-theme",
+  "name": "yadeck-plugin-hero",
   "type": "module",
+  "keywords": ["yadeck-plugin"],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist"],
+  "files": ["dist", "example"],
   "peerDependencies": {
-    "@yadeck/slide-core": "^0.1.0",
+    "@yadeck/slide-core": "^0.1.2",
     "react": "^19.0.0",
     "zod": "^4.0.0"
   }
@@ -114,18 +136,52 @@ my-yadeck-theme/
 - tsconfig は `"jsx": "react-jsx"` で ESM に出力します
 - deck の `slide.config.ts` は esbuild で読み込まれ、プラグインもまとめて取り込まれます
 
+## 公開する
+
+`npm publish` で公開します。プラグインの一覧に載せ、`npx yadeck add` で見つけやすくするため、次の決まりを守ります。
+
+| 決まり | 理由 |
+|---|---|
+| `keywords` に `yadeck-plugin` を入れる | 一覧は npm の検索でこのキーワードを集める |
+| 名前は `yadeck-plugin-*` か `@scope/yadeck-plugin-*` | 探しやすく、`yadeck add` が接頭辞を外した名前で import する |
+| `example/deck.yaml` に、bind した tags をひととおり使った見本を置き、`files` に含める | 一覧のサムネイルを、この見本から作る |
+| `bind` の `description` を「どういう内容のページで使うか」から書く | 一覧と schema に出て、人と AI が選ぶ手がかりになる |
+
+## deck にプラグインを入れる
+
+deck のリポジトリで `yadeck add` を使うと、npm での追加、`slide.config.ts` の書き換え、schema の更新をまとめて行います。
+
+```sh
+npx yadeck add my-yadeck-theme
+```
+
+```
+  ✓ my-yadeck-theme を slide.config.ts の plugins に足しました(import 名: myYadeckTheme)
+    使えるようになった見せ方:
+      slide hero  — 一言を全面に大きく出す
+    .slide/deck.schema.json を更新しました
+```
+
+- `import` を足し、`plugins` の最後に加えます。後から登録したプラグインが同じ tags の Layout を上書きできるようにするためです
+- import 名はパッケージ名から作ります。`yadeck-plugin-`、`yadeck-theme-` などの接頭辞は外します
+- 書き換えた設定を一度読み込んで確かめます。default export がプラグインでないなど、読み込めないときは `slide.config.ts` を変えずに止まります
+- lockfile を見て npm / pnpm / yarn / bun を選びます
+
 ### 開発中のプラグインを deck で試す
 
-```json
-// deck の package.json
-"my-yadeck-theme": "file:../my-yadeck-theme"
+パスでも足せます。
+
+```sh
+npx yadeck add ../my-yadeck-theme
 ```
+
+dev でプラグインのビルド結果の変更も拾うよう、`watch` を足しておきます。
 
 ```ts
 // deck の slide.config.ts
 export default defineConfig({
-  plugins: [basic, myTheme],
-  watch: ["../my-yadeck-theme/dist"],   // dev でプラグインのビルド結果の変更も拾う
+  plugins: [basic, myYadeckTheme],
+  watch: ["../my-yadeck-theme/dist"],
 });
 ```
 

@@ -20,6 +20,35 @@ cd my-deck
 npm install
 ```
 
+### 既にあるリポジトリに足す
+
+原稿やメモを置いたリポジトリにも、後から足せます。既にあるファイルは上書きせず、無いファイルだけを置きます。そのままにしたファイルは最後に一覧で出ます。
+
+```sh
+cd my-talk          # talkscript.md などがあるリポジトリ
+npx @yadeck/create-slide .
+npm install
+```
+
+`package.json` が既にあるときは、何も置かずに止まります。依存と scripts を合成できないためです。次を手で足してから、`decks/` と `slide.config.ts` を用意してください(中身は[雛形](https://github.com/onfi/yadeck/tree/main/packages/create-slide/template)と同じです)。
+
+```json
+"scripts": {
+  "dev": "yadeck dev",
+  "build": "yadeck build",
+  "validate": "yadeck validate",
+  "check": "yadeck check",
+  "png": "yadeck png"
+},
+"dependencies": {
+  "@yadeck/slide-components-basic": "^0.1.2",
+  "@yadeck/slide-core": "^0.1.2",
+  "react": "^19.3.0",
+  "react-dom": "^19.3.0",
+  "zod": "^4.6.0"
+}
+```
+
 ::: tip 開発中の版を使う
 npm に出ている版ではなく、リポジトリの最新を試したいときは、YADECK のリポジトリを手元に置いて `file:` で参照します。
 

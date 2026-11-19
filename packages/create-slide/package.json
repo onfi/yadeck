@@ -18,7 +18,8 @@
   "files": [
     "dist",
     "bin",
-    "template"
+    "template",
+    "template-plugin"
   ],
   "scripts": {
     "build": "tsc -b"

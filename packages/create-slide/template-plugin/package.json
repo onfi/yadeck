@@ -1,0 +1,46 @@
+{
+  "name": "{{name}}",
+  "version": "0.1.0",
+  "description": "YADECK plugin",
+  "type": "module",
+  "keywords": [
+    "yadeck-plugin"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "example"
+  ],
+  "scripts": {
+    "dev": "yadeck dev",
+    "build": "tsc",
+    "test": "vitest run",
+    "schema": "yadeck schema",
+    "check": "yadeck check",
+    "png": "yadeck png",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "peerDependencies": {
+    "@yadeck/slide-core": "^0.1.2",
+    "react": "^19.0.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@yadeck/slide-components-basic": "^0.1.2",
+    "@yadeck/slide-core": "^0.1.2",
+    "playwright": "^1.65.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "typescript": "^5.9.0",
+    "vitest": "^5.1.0",
+    "zod": "^4.6.0"
+  }
+}

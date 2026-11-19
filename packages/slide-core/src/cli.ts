@@ -1,8 +1,10 @@
 import { build as esbuild } from "esbuild";
+import { spawnSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as http from "node:http";
 import * as path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { addPluginToConfig, diffLayouts, packageNameOf } from "./add.js";
 import { createContainer, type Container, type SlideConfig } from "./container.js";
 import { creditHtml, escapeHtml, renderDocument } from "./document.js";
 import { embedFonts, fontLinkTags } from "./fonts.js";
@@ -22,6 +24,8 @@ interface CliOptions {
   decks: string[];
   /** check / png: 対象のページ番号(右下の番号、URL の #s9 の 9)。複数可 */
   slides: string[];
+  /** コマンドの後に続く引数(add のパッケージ) */
+  args: string[];
   /** check: 問題のあったスライドを PNG にも書き出す */
   png?: boolean;
   /** png: 倍率 */
@@ -35,6 +39,7 @@ const USAGE = `usage: yadeck <command> [options]
   schema     .slide/deck.schema.json を書き出す
   check      ビルドして Chromium で描画し、はみ出し・切れ・コードの縮みを検査する
   png        ビルドして各スライドを PNG に書き出す(<out>/png/<deck>/s09.png)
+  add <pkg>  プラグインを npm で入れ、slide.config.ts の plugins に足して schema を更新する
 
 options:
   --config slide.config.ts   --out dist   --port 3000
@@ -44,7 +49,7 @@ options:
   --scale <n>      png の倍率(既定 1 = 1280x720)`;
 
 function parseArgs(argv: string[]): { command: string; options: CliOptions } {
-  const options: CliOptions = { cwd: process.cwd(), config: "slide.config.ts", decks: [], slides: [] };
+  const options: CliOptions = { cwd: process.cwd(), config: "slide.config.ts", decks: [], slides: [], args: [] };
   let command = "";
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i]!;
@@ -56,6 +61,7 @@ function parseArgs(argv: string[]): { command: string; options: CliOptions } {
     else if (a === "--png") options.png = true;
     else if (a === "--scale") options.scale = Number(argv[++i]);
     else if (!command) command = a;
+    else if (command === "add") options.args.push(a);
     else throw new Error(USAGE);
   }
   return { command, options };
@@ -502,6 +508,94 @@ async function schema(options: CliOptions): Promise<void> {
   console.log(path.relative(options.cwd, project.schemaPath));
 }
 
+/** lockfile から、その deck で使っているパッケージマネージャを選ぶ */
+function installCommand(cwd: string, spec: string): [string, string[]] {
+  if (fs.existsSync(path.join(cwd, "pnpm-lock.yaml"))) return ["pnpm", ["add", spec]];
+  if (fs.existsSync(path.join(cwd, "yarn.lock"))) return ["yarn", ["add", spec]];
+  if (fs.existsSync(path.join(cwd, "bun.lock")) || fs.existsSync(path.join(cwd, "bun.lockb"))) return ["bun", ["add", spec]];
+  return ["npm", ["install", spec]];
+}
+
+function readDependencies(cwd: string): Record<string, string> {
+  const file = path.join(cwd, "package.json");
+  if (!fs.existsSync(file)) throw new Error(`package.json not found: ${file}`);
+  const json = JSON.parse(fs.readFileSync(file, "utf8")) as Record<string, Record<string, string> | undefined>;
+  return { ...json.devDependencies, ...json.dependencies };
+}
+
+/** パスで指定されたパッケージ(`../my-plugin`、`file:../my-plugin`)の名前。パスでなければ undefined */
+function localPackageName(cwd: string, spec: string): string | undefined {
+  if (!/^(\.|\/|file:)/.test(spec)) return undefined;
+  const file = path.join(path.resolve(cwd, spec.replace(/^file:/, "")), "package.json");
+  if (!fs.existsSync(file)) return undefined;
+  return (JSON.parse(fs.readFileSync(file, "utf8")) as { name?: string }).name;
+}
+
+/**
+ * プラグインを入れて使える状態にする。
+ * 書き換えた slide.config.ts は一時ファイルで読み込んで確かめ、読めなければ元の設定には触らずに止める
+ */
+async function add(options: CliOptions): Promise<void> {
+  const spec = options.args[0];
+  if (!spec || options.args.length > 1) throw new Error("usage: yadeck add <package>");
+  const before = readDependencies(options.cwd);
+  let name = packageNameOf(spec) ?? localPackageName(options.cwd, spec);
+  if (!(name && name in before)) {
+    const [cmd, args] = installCommand(options.cwd, spec);
+    console.log(`$ ${cmd} ${args.join(" ")}`);
+    const r = spawnSync(cmd, args, { cwd: options.cwd, stdio: "inherit", shell: process.platform === "win32" });
+    if (r.status !== 0) throw new Error(`${cmd} ${args.join(" ")} failed`);
+  }
+  if (!name) {
+    const added = Object.keys(readDependencies(options.cwd)).filter((k) => !(k in before));
+    if (added.length !== 1) throw new Error(`入れたパッケージの名前が分かりません。名前で指定してください: yadeck add <package>`);
+    name = added[0]!;
+  }
+
+  const configFile = path.resolve(options.cwd, options.config);
+  if (!fs.existsSync(configFile)) throw new Error(`config not found: ${configFile}`);
+  const edit = addPluginToConfig(fs.readFileSync(configFile, "utf8"), name);
+  if (edit.alreadyAdded) {
+    console.log(`${name} は ${options.config} の plugins に既にあります(import 名: ${edit.ident})`);
+    return;
+  }
+
+  const trial = path.join(path.dirname(configFile), `.add-${process.pid}${path.extname(configFile)}`);
+  fs.writeFileSync(trial, edit.source);
+  // 足す前後の比較は同じバンドルから作る(別々に読むと basic なども別物になり、全部が変わったように見える)。
+  // 足したプラグインは plugins の最後に入る
+  let beforeContainer: Container;
+  let afterContainer: Container;
+  try {
+    const { plugins } = await loadConfig({ ...options, config: path.relative(options.cwd, trial) });
+    afterContainer = createContainer(plugins);
+    beforeContainer = createContainer(plugins.slice(0, -1));
+  } catch (e) {
+    throw new Error(
+      `${name} をプラグインとして読み込めませんでした。default export が definePlugin(...) の結果か確かめてください。` +
+        `${options.config} は変えていません(パッケージは入ったままなので、不要なら npm uninstall ${name})。\n  ${e instanceof Error ? e.message : String(e)}`,
+    );
+  } finally {
+    fs.rmSync(trial, { force: true });
+  }
+  fs.writeFileSync(configFile, edit.source);
+  const project = await prepare(options);
+  emitSchema(project);
+
+  console.log(`\n  ✓ ${name} を ${options.config} の plugins に足しました(import 名: ${edit.ident})`);
+  const layouts = diffLayouts(beforeContainer, afterContainer);
+  if (layouts.length === 0) {
+    console.log("    新しく使える tags はありません(スタイルだけを足すプラグインかもしれません)");
+  } else {
+    console.log("    使えるようになった見せ方:");
+    for (const l of layouts) {
+      const tags = l.tags.length > 0 ? l.tags.join(" ") : "(tags なし)";
+      console.log(`      ${l.stage.padEnd(5)} ${tags}${l.replaced ? "  [置き換え]" : ""}${l.description ? `  — ${l.description}` : ""}`);
+    }
+  }
+  console.log(`    ${path.relative(options.cwd, project.schemaPath)} を更新しました`);
+}
+
 export async function main(argv: string[]): Promise<void> {
   const { command, options } = parseArgs(argv);
   switch (command) {
@@ -517,6 +611,8 @@ export async function main(argv: string[]): Promise<void> {
       return check(options);
     case "png":
       return png(options);
+    case "add":
+      return add(options);
     default:
       throw new Error(USAGE);
   }

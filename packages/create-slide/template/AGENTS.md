@@ -83,7 +83,9 @@ skill `yadeck` の手順に従う。要点は次のとおり。
 
 ## 見せ方が足りないとき
 
+- npm に公開されているプラグインは `npx yadeck add <パッケージ>` で入れる。`slide.config.ts` への追記と schema の更新まで行い、使えるようになった tags を表示する
 - `src/` に Layout(React コンポーネント)を書き、`definePlugin` で tags に bind して `slide.config.ts` の `plugins` に足す。data の書き方は変わらない
+- 他の deck でも使いたい Layout は、`npx @yadeck/create-slide --plugin yadeck-plugin-<名前>` でプラグインのリポジトリにして npm に公開する
 - `bind` の `description` には、見た目より先に「どういう内容のページで使うか」を書く。schema に出て、エージェントが tags を選ぶ手がかりになる
 - 意図して枠の外へ出す装飾には `aria-hidden="true"` を付ける(`check` の対象から外れる)
 - チャートや three.js など、npm の React コンポーネントもそのまま import して使える。ブラウザで動かす必要があるものは `bind` に `client: true` を付ける

@@ -151,9 +151,14 @@ function showPointer(x: number | null, y = 0): void {
   dot.style.top = `${y * SLIDE_H}px`;
 }
 
+/** Ctrl+P(印刷)や Ctrl+L などブラウザのショートカットは横取りしない */
+function isShortcut(e: KeyboardEvent): boolean {
+  return e.ctrlKey || e.metaKey || e.altKey;
+}
+
 function bindNavigationKeys(): void {
   document.addEventListener("keydown", (e) => {
-    if ((e.target as HTMLElement).tagName === "INPUT") return;
+    if ((e.target as HTMLElement).tagName === "INPUT" || isShortcut(e)) return;
     switch (e.key) {
       case "ArrowRight":
       case "ArrowDown":
@@ -234,6 +239,7 @@ function setupBrowse(): void {
   bar.append(present, presenter);
   document.body.appendChild(bar);
   document.addEventListener("keydown", (e) => {
+    if (isShortcut(e)) return;
     if (e.key === "p" || e.key === "P") present.click();
     if (e.key === "s" || e.key === "S") presenter.click();
   });
