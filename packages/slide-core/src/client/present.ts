@@ -218,6 +218,17 @@ function listenChannel(onState?: () => void): void {
   };
 }
 
+/**
+ * 予定より何ページ分遅れているか。負なら先行。1 ページの持ち時間は目標時間をページ数で割ったもの。
+ * 予定の位置が今のページの持ち時間の内にあるうちは 0 にし、ページの途中で遅れと出さない
+ */
+function paceOf(elapsed: number, index: number, count: number, duration: number): number {
+  const planned = elapsed / (duration / count);
+  if (planned > index + 1) return planned - (index + 1);
+  if (planned < index) return planned - index;
+  return 0;
+}
+
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, text?: string): HTMLElementTagNameMap[K] {
   const e = document.createElement(tag);
   e.className = className;
@@ -289,6 +300,7 @@ function setupPresenter(): void {
   const counter = el("span", "yd-counter");
   const timer = el("span", "yd-timer", "00:00");
   const clock = el("span", "yd-clock");
+  const pace = el("span", "yd-pace");
   const startBtn = el("button", "", "開始");
   const resetBtn = el("button", "", "リセット");
   const screenSelect = el("select", "yd-screens");
@@ -300,7 +312,7 @@ function setupPresenter(): void {
 
   stage.appendChild(deck);
   side.append(el("div", "yd-label", "次のスライド"), next, el("div", "yd-label", "ノート"), notes);
-  footer.append(prevBtn, nextBtn, counter, blackBtn, laserBtn, el("span", "yd-spacer"), startBtn, resetBtn, timer, clock, screenSelect, projectBtn);
+  footer.append(prevBtn, nextBtn, counter, blackBtn, laserBtn, el("span", "yd-spacer"), startBtn, resetBtn, timer, pace, clock, screenSelect, projectBtn);
   console_.append(stage, side, footer);
   document.body.appendChild(console_);
 
@@ -355,8 +367,18 @@ function setupPresenter(): void {
     const ss = String(s % 60).padStart(2, "0");
     return `${mm}:${ss}`;
   };
+  const duration = Number(document.body.dataset.ydDuration) * 1000;
+  const showPace = (ms: number) => {
+    if (!(duration > 0)) return;
+    const p = Math.round(paceOf(ms, index, frames.length, duration) * 10) / 10;
+    pace.textContent = p > 0 ? `${p.toFixed(1)} 遅れ` : p < 0 ? `${(-p).toFixed(1)} 先行` : "予定通り";
+    pace.classList.toggle("yd-late", p > 0);
+    pace.classList.toggle("yd-ahead", p < 0);
+  };
   setInterval(() => {
-    timer.textContent = fmt(elapsed + (startedAt ? Date.now() - startedAt : 0));
+    const ms = elapsed + (startedAt ? Date.now() - startedAt : 0);
+    timer.textContent = fmt(ms);
+    showPace(ms);
     clock.textContent = new Date().toLocaleTimeString();
   }, 500);
   startBtn.onclick = () => {

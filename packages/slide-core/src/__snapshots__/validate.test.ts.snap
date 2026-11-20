@@ -166,6 +166,11 @@ exports[`emitJsonSchema > 各段を anyOf で合成し、Layout の tags を con
                   "description": "検索結果や SNS のカードに出す説明。省略すると表紙の副題と各ページの見出しから作る",
                   "type": "string",
                 },
+                "duration": {
+                  "description": "発表の目標時間(分)。発表者モードで、予定より何ページ分進んでいるか遅れているかを出す",
+                  "exclusiveMinimum": 0,
+                  "type": "number",
+                },
                 "image": {
                   "description": "SNS のカードに出す画像。URL か、siteUrl からの相対パス",
                   "type": "string",

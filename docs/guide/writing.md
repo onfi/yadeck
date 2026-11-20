@@ -57,6 +57,7 @@ $meta:
   title: 発表タイトル        # 省略すると header の title、無ければファイル名
   description: 検索結果や SNS のカードに出す説明   # 省略すると内容から作る
   image: ./og.png            # SNS のカードの画像。URL か、siteUrl からの相対パス
+  duration: 10               # 発表の目標時間(分)。発表者モードに進み具合が出る
 $slides:
   - $tags: [two-column]
     description: 比べると違いが分かる

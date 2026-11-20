@@ -56,6 +56,7 @@ export const deckMeta = z
     date: z.string().optional(),
     description: z.string().optional().describe("検索結果や SNS のカードに出す説明。省略すると表紙の副題と各ページの見出しから作る"),
     image: z.string().optional().describe("SNS のカードに出す画像。URL か、siteUrl からの相対パス"),
+    duration: z.number().positive().optional().describe("発表の目標時間(分)。発表者モードで、予定より何ページ分進んでいるか遅れているかを出す"),
   })
   .loose();
 

@@ -80,6 +80,9 @@ body.yd-presenter { background: #1a1a1a; color: #eee; overflow: hidden; font: 14
 .yd-footer { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; }
 .yd-footer .yd-spacer { flex: 1; }
 .yd-footer .yd-timer { font-size: 28px; font-variant-numeric: tabular-nums; }
+.yd-footer .yd-pace { font-size: 18px; font-variant-numeric: tabular-nums; }
+.yd-footer .yd-pace.yd-late { color: #ff6b6b; }
+.yd-footer .yd-pace.yd-ahead { color: #5fd38d; }
 .yd-footer .yd-clock { color: #999; font-variant-numeric: tabular-nums; }
 .yd-footer .yd-counter { font-size: 18px; min-width: 80px; }
 `;
@@ -151,6 +154,12 @@ export function escapeHtml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
+/** meta.duration(分)を秒にして body に持たせる。発表者モードの進み具合の表示が読む */
+function durationAttr(deck: DeckNode): string {
+  const minutes = deck.meta.duration;
+  return typeof minutes === "number" && minutes > 0 ? ` data-yd-duration="${minutes * 60}"` : "";
+}
+
 /** SSG 用の完全な HTML ドキュメント */
 export function renderDocument(deck: DeckNode, options: DocumentOptions): string {
   const { container, richText, extraScripts = [], extraHead = "" } = options;
@@ -174,7 +183,7 @@ ${extraHead}
 <style>${BASE_CSS}</style>
 <style>${css}</style>
 </head>
-<body>
+<body${durationAttr(deck)}>
 ${body}
 ${options.credit === false ? "" : creditHtml()}
 ${scripts}
